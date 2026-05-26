@@ -66,7 +66,7 @@ export default function SignupPage() {
     <div className="flex min-h-svh flex-col bg-white">
       <AuthHero />
 
-      <form onSubmit={handleSubmit} className="flex flex-1 flex-col px-7 pt-4">
+      <form onSubmit={handleSubmit} noValidate className="flex flex-1 flex-col px-7 pt-4">
         <InputField
           label="이름"
           type="text"

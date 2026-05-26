@@ -46,7 +46,7 @@ export default function LoginPage() {
     <div className="flex min-h-svh flex-col bg-white">
       <AuthHero />
 
-      <form onSubmit={handleSubmit} className="flex flex-1 flex-col px-7 pt-10">
+      <form onSubmit={handleSubmit} noValidate className="flex flex-1 flex-col px-7 pt-10">
         <InputField
           type="email"
           placeholder="이메일"
