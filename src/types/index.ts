@@ -1,4 +1,4 @@
-export type PhotoCategory = '음식' | '패션' | '여행' | '풍경' | '일상' | '미분류'
+export type PhotoCategory = '음식' | '패션' | '여행' | '운동' | '일상' | '미분류'
 
 export interface User {
   userId: string
@@ -33,6 +33,8 @@ export interface CalendarDateEntry {
   representativePhoto: {
     photoId: string
     thumbnailUrl: string
+    category: string
+    categoryColor: string
   }
 }
 

@@ -3,7 +3,6 @@ import type { User } from '../types'
 
 interface AuthResponse {
   accessToken: string
-  refreshToken: string
   user: User
 }
 
@@ -16,5 +15,5 @@ export const loginWithSocial = (provider: 'kakao' | 'google', accessToken: strin
 export const signup = (name: string, email: string, password: string) =>
   api.post<AuthResponse>('/auth/signup', { name, email, password })
 
-export const refreshToken = (refreshToken: string) =>
-  api.post<{ accessToken: string }>('/auth/refresh', { refreshToken })
+export const refreshToken = () =>
+  api.post<{ accessToken: string }>('/auth/refresh')
