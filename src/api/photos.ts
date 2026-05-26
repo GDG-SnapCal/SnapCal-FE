@@ -1,4 +1,4 @@
-import api from '../lib/axios'
+import api, { uploadApi } from '../lib/axios'
 import type { DuplicateGroup, ClassifiedPhoto } from '../types'
 
 interface UploadResponse {
@@ -18,7 +18,7 @@ interface UploadStatusResponse {
 export const uploadPhotos = (files: File[]) => {
   const formData = new FormData()
   files.forEach((file) => formData.append('photos', file))
-  return api.post<UploadResponse>('/photos/upload', formData)
+  return uploadApi.post<UploadResponse>('/photos/upload', formData)
 }
 
 export const getUploadStatus = (uploadId: string) =>
