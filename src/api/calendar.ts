@@ -12,7 +12,7 @@ export const getCalendar = (year: number, month: number, category?: PhotoCategor
 
 export const saveToCalendar = (
   uploadId: string,
-  photos: { photoId: string; category: string; date: string }[]
+  photos: { photoId: string; category: string }[]
 ) => api.post<{ savedCount: number }>('/calendar/save', { uploadId, photos })
 
 export const exportCalendar = (year: number, month: number, ratio: '1:1' | '4:5' | '16:9') =>
