@@ -12,7 +12,10 @@ api.interceptors.request.use((config) => {
 })
 
 api.interceptors.response.use(
-  (res) => res,
+  (res) => {
+    if (res.data && 'success' in res.data) res.data = res.data.data
+    return res
+  },
   (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem('accessToken')
