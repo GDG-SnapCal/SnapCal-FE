@@ -14,7 +14,7 @@ interface UploadState {
   upload: () => Promise<'duplicate' | 'classify'>
   pollStatus: () => Promise<void>
   submitDuplicates: (selections: { groupId: string; selectedPhotoId: string }[]) => Promise<void>
-  saveToCalendar: (photos: { photoId: string; category: string; date: string }[]) => Promise<void>
+  saveToCalendar: (photos: { photoId: string; category: string }[]) => Promise<void>
   reset: () => void
 }
 
