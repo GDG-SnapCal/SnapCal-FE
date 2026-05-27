@@ -26,8 +26,11 @@ export const getUploadStatus = (uploadId: string) =>
 
 export const submitDuplicateSelection = (
   uploadId: string,
-  selections: { groupId: string; selectedPhotoId: string }[]
+  selections: { groupId: string; selectedPhotoId: string; unselectedPhotoIds: string[] }[],
 ) => api.post('/photos/duplicates/select', { uploadId, selections })
+
+export const updatePhotoCategory = (photoId: string, categoryId: number) =>
+  api.patch(`/photos/${photoId}/category`, { categoryId })
 
 export const editPhoto = (
   photoId: string,
@@ -36,5 +39,5 @@ export const editPhoto = (
     blur: number
     filter: string | null
     textLayers: { text: string; x: number; y: number; fontSize: number; color: string }[]
-  }
+  },
 ) => api.post<{ photoId: string; editedUrl: string }>(`/photos/${photoId}/edit`, options)

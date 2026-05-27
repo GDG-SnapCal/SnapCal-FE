@@ -7,7 +7,6 @@ const CATEGORY_GRADIENT: Record<string, [string, string]> = {
   음식: ['#fae4d4', '#b07f5e'],
   패션: ['#f2d4db', '#a56b7c'],
   운동: ['#c8f0df', '#3a8f6b'],
-  여행: ['#bfe3f5', '#3f7da7'],
   풍경: ['#bfe3f5', '#3f7da7'],
   일상: ['#e8e1d2', '#86755a'],
   미분류: ['#e8e8e8', '#9e9e9e'],
@@ -17,7 +16,8 @@ const FILTERS: { label: string; value: PhotoCategory | 'all' }[] = [
   { label: '전체', value: 'all' },
   { label: '음식', value: '음식' },
   { label: '패션', value: '패션' },
-  { label: '여행', value: '여행' },
+  { label: '운동', value: '운동' },
+  { label: '풍경', value: '풍경' },
   { label: '일상', value: '일상' },
 ]
 
@@ -54,7 +54,10 @@ export default function CalendarPage() {
 
   const getEntry = (day: number) => {
     const key = `${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`
-    return calendarData[key] ?? null
+    const entry = calendarData[key] ?? null
+    if (!entry) return null
+    if (selectedCategory !== 'all' && entry.representativePhoto.category !== selectedCategory) return null
+    return entry
   }
 
   return (
@@ -207,13 +210,22 @@ export default function CalendarPage() {
                     key={day}
                     type="button"
                     className="relative h-[100px] w-full overflow-hidden rounded-[14px]"
-                    style={{
-                      background: `linear-gradient(to top, ${fromColor} 50%, ${toColor} 150%)`,
-                    }}
                   >
-                    <span className="absolute left-[5px] top-[5px] text-[11px] font-bold text-white">
+                    <img
+                      src={entry.representativePhoto.thumbnailUrl}
+                      alt=""
+                      className="absolute inset-0 size-full object-cover"
+                    />
+                    {/* 날짜 숫자 가독성용 상단 그라디언트 */}
+                    <div className="absolute inset-x-0 top-0 h-8 bg-gradient-to-b from-black/30 to-transparent" />
+                    <span className="absolute left-[5px] top-[5px] text-[11px] font-bold text-white drop-shadow">
                       {day}
                     </span>
+                    {/* 카테고리 컬러 도트 */}
+                    <div
+                      className="absolute bottom-[5px] right-[5px] size-[8px] rounded-full"
+                      style={{ backgroundColor: entry.representativePhoto.categoryColor || fromColor }}
+                    />
                   </button>
                 )
               }

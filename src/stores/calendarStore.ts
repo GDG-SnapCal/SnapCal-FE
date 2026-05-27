@@ -8,7 +8,7 @@ interface CalendarState {
   selectedCategory: PhotoCategory | 'all'
   calendarData: Record<string, CalendarDateEntry>
   isLoading: boolean
-  fetchCalendar: (year: number, month: number, category?: PhotoCategory) => Promise<void>
+  fetchCalendar: (year: number, month: number) => Promise<void>
   setCategory: (category: PhotoCategory | 'all') => void
   goToPrevMonth: () => void
   goToNextMonth: () => void
@@ -23,11 +23,23 @@ export const useCalendarStore = create<CalendarState>((set, get) => ({
   calendarData: {},
   isLoading: false,
 
-  fetchCalendar: async (year, month, category) => {
+  fetchCalendar: async (year, month) => {
     set({ isLoading: true })
     try {
-      const { data } = await getCalendar(year, month, category)
-      set({ calendarData: data.dates ?? {}, isLoading: false })
+      const { data } = await getCalendar(year, month)
+      const calendarData = (data.days ?? []).reduce(
+        (acc, day) => {
+          if (day.photos.length > 0) {
+            acc[day.date] = {
+              count: day.photos.length,
+              representativePhoto: day.photos[0],
+            }
+          }
+          return acc
+        },
+        {} as Record<string, CalendarDateEntry>,
+      )
+      set({ calendarData, isLoading: false })
     } catch {
       set({ isLoading: false })
     }
@@ -35,27 +47,25 @@ export const useCalendarStore = create<CalendarState>((set, get) => ({
 
   setCategory: (category) => {
     set({ selectedCategory: category })
-    const { currentYear, currentMonth, fetchCalendar } = get()
-    fetchCalendar(currentYear, currentMonth, category === 'all' ? undefined : category)
   },
 
   goToPrevMonth: () => {
-    const { currentYear, currentMonth, fetchCalendar, selectedCategory } = get()
+    const { currentYear, currentMonth, fetchCalendar } = get()
     const prev =
       currentMonth === 1
         ? { year: currentYear - 1, month: 12 }
         : { year: currentYear, month: currentMonth - 1 }
     set({ currentYear: prev.year, currentMonth: prev.month })
-    fetchCalendar(prev.year, prev.month, selectedCategory === 'all' ? undefined : selectedCategory)
+    fetchCalendar(prev.year, prev.month)
   },
 
   goToNextMonth: () => {
-    const { currentYear, currentMonth, fetchCalendar, selectedCategory } = get()
+    const { currentYear, currentMonth, fetchCalendar } = get()
     const next =
       currentMonth === 12
         ? { year: currentYear + 1, month: 1 }
         : { year: currentYear, month: currentMonth + 1 }
     set({ currentYear: next.year, currentMonth: next.month })
-    fetchCalendar(next.year, next.month, selectedCategory === 'all' ? undefined : selectedCategory)
+    fetchCalendar(next.year, next.month)
   },
 }))

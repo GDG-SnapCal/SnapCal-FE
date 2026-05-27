@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   DndContext,
@@ -15,15 +15,17 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import AppBar from '../components/common/AppBar'
 import { useUploadStore } from '../stores/uploadStore'
+import { updatePhotoCategory } from '../api/photos'
+import { getCategories } from '../api/categories'
 import type { PhotoCategory, ClassifiedPhoto } from '../types'
 
-const CATEGORY_ORDER: PhotoCategory[] = ['음식', '패션', '운동', '여행', '일상', '미분류']
+const CATEGORY_ORDER: PhotoCategory[] = ['음식', '패션', '운동', '풍경', '일상', '미분류']
 
 const CATEGORY_COLORS: Record<PhotoCategory, string> = {
   음식: '#FAC775',
   패션: '#F4C0D1',
   운동: '#9FE1CB',
-  여행: '#B5D4F4',
+  풍경: '#B5D4F4',
   일상: '#D3D1C7',
   미분류: '#E8E8E8',
 }
@@ -186,6 +188,17 @@ export default function ClassifyResultPage() {
   )
 
   const [activePhotoId, setActivePhotoId] = useState<string | null>(null)
+  const [categoryIdMap, setCategoryIdMap] = useState<Record<string, number>>({})
+
+  useEffect(() => {
+    getCategories()
+      .then(({ data }) => {
+        const map: Record<string, number> = {}
+        data.forEach((c) => { map[c.name] = c.categoryId })
+        setCategoryIdMap(map)
+      })
+      .catch(() => {})
+  }, [])
 
   const originalCategories = useMemo(
     () => CATEGORY_ORDER.filter((cat) => classifiedPhotos.some((p) => p.category === cat)),
@@ -250,10 +263,16 @@ export default function ClassifyResultPage() {
   }
 
   const handleSave = async () => {
-    const photos = classifiedPhotos
-      .filter((p) => selected.has(p.photoId))
-      .map((p) => ({ photoId: p.photoId, category: photoCategories[p.photoId] ?? p.category }))
-    await saveToCalendar(photos)
+    const changedPhotos = classifiedPhotos.filter(
+      (p) => photoCategories[p.photoId] !== p.category,
+    )
+    await Promise.all(
+      changedPhotos.map((p) => {
+        const categoryId = categoryIdMap[photoCategories[p.photoId]]
+        return categoryId ? updatePhotoCategory(p.photoId, categoryId) : Promise.resolve()
+      }),
+    )
+    await saveToCalendar()
     navigate('/calendar')
   }
 
