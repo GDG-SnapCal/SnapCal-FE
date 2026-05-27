@@ -68,9 +68,20 @@ export const useUploadStore = create<UploadState>((set, get) => ({
   },
 
   submitDuplicates: async (selections) => {
-    const { uploadId } = get()
+    const { uploadId, duplicateGroups, classifiedPhotos } = get()
     if (!uploadId) return
     await submitDuplicateSelection(uploadId, selections)
+
+    const removedIds = new Set(
+      duplicateGroups.flatMap((group) => {
+        const selection = selections.find((s) => s.groupId === group.groupId)
+        if (!selection) return []
+        return group.photos
+          .filter((p) => p.photoId !== selection.selectedPhotoId)
+          .map((p) => p.photoId)
+      }),
+    )
+    set({ classifiedPhotos: classifiedPhotos.filter((p) => !removedIds.has(p.photoId)) })
   },
 
   saveToCalendar: async (photos) => {
