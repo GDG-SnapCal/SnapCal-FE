@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 
 interface AppBarProps {
-  title: string
+  title: React.ReactNode
   onBack?: () => void
   rightElement?: React.ReactNode
 }
