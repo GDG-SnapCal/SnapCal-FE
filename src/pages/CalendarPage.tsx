@@ -255,7 +255,7 @@ export default function CalendarPage() {
           {/* Upload (+) button */}
           <button
             type="button"
-            onClick={() => navigate('/upload/select')}
+            onClick={() => navigate('/upload')}
             className="flex size-[46px] items-center justify-center rounded-full bg-[#a8d8ea] shadow-[0_4px_12px_rgba(168,216,234,0.5)]"
           >
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
