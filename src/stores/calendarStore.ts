@@ -25,8 +25,12 @@ export const useCalendarStore = create<CalendarState>((set, get) => ({
 
   fetchCalendar: async (year, month, category) => {
     set({ isLoading: true })
-    const { data } = await getCalendar(year, month, category)
-    set({ calendarData: data.dates, isLoading: false })
+    try {
+      const { data } = await getCalendar(year, month, category)
+      set({ calendarData: data.dates, isLoading: false })
+    } catch {
+      set({ isLoading: false })
+    }
   },
 
   setCategory: (category) => {
