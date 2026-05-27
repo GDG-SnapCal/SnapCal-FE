@@ -61,9 +61,9 @@ export default function CalendarPage() {
   }
 
   return (
-    <div className="flex min-h-svh flex-col bg-white">
+    <div className="flex min-h-svh flex-col bg-white px-[30px] pt-0">
       {/* App Header */}
-      <div className="flex items-center px-[18px] pt-[52px]">
+      <div className="flex items-center  pt-[52px]">
         <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
           <path
             d="M21 14C21 10.13 17.87 7 14 7H12C8.13 7 5 10.13 5 14C5 17.87 8.13 21 12 21H14C17.87 21 21 17.87 21 14Z"
@@ -108,7 +108,7 @@ export default function CalendarPage() {
       </div>
 
       {/* Month navigation */}
-      <div className="flex items-center px-[18px] pt-3">
+      <div className="flex items-center pt-3">
         <span className="text-[22px] font-black tracking-[-0.55px] text-[#2c2c2c]">
           {currentYear}년 {currentMonth}월
         </span>
@@ -150,7 +150,7 @@ export default function CalendarPage() {
       </div>
 
       {/* Category filter chips */}
-      <div className="mt-3 flex gap-2 overflow-x-auto px-[18px] pb-1 [&::-webkit-scrollbar]:hidden">
+      <div className="mt-3 flex gap-2 overflow-x-auto pb-1 [&::-webkit-scrollbar]:hidden">
         {FILTERS.map((f) => {
           const active = selectedCategory === f.value
           return (
@@ -174,10 +174,11 @@ export default function CalendarPage() {
             </button>
           )
         })}
+        <div className="w-[30px] flex-shrink-0" />
       </div>
 
       {/* Day-of-week labels */}
-      <div className="mt-3 grid grid-cols-7 px-3">
+      <div className="mt-3 grid grid-cols-7 ">
         {DAY_LABELS.map((d, i) => (
           <div
             key={d}
@@ -190,7 +191,7 @@ export default function CalendarPage() {
       </div>
 
       {/* Calendar grid */}
-      <div className="mt-2 flex-1 px-3 pb-[100px]">
+      <div className="mt-2 flex-1  pb-[100px]">
         {isLoading ? (
           <div className="flex h-32 items-center justify-center text-[13px] text-[#9e9e9e]">
             불러오는 중...

@@ -44,11 +44,14 @@ function DraggablePhoto({
   currentCategory,
   isSelected,
   onToggle,
+
 }: {
+
   photo: ClassifiedPhoto
   currentCategory: PhotoCategory
   isSelected: boolean
   onToggle: (id: string) => void
+
 }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: photo.photoId,
@@ -200,21 +203,18 @@ export default function ClassifyResultPage() {
       .catch(() => {})
   }, [])
 
-  const originalCategories = useMemo(
-    () => CATEGORY_ORDER.filter((cat) => classifiedPhotos.some((p) => p.category === cat)),
-    [classifiedPhotos],
-  )
+  const originalCategories = CATEGORY_ORDER
 
   const grouped = useMemo(
     () =>
-      originalCategories.reduce(
+     CATEGORY_ORDER.reduce(
         (acc, cat) => {
           acc[cat] = classifiedPhotos.filter((p) => photoCategories[p.photoId] === cat)
           return acc
         },
         {} as Record<string, typeof classifiedPhotos>,
       ),
-    [classifiedPhotos, photoCategories, originalCategories],
+    [classifiedPhotos, photoCategories],
   )
 
   const [selected, setSelected] = useState<Set<string>>(() => {
