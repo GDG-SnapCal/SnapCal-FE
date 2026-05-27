@@ -14,7 +14,7 @@ interface UploadState {
   upload: () => Promise<'duplicate' | 'classify'>
   pollStatus: () => Promise<void>
   submitDuplicates: (selections: { groupId: string; selectedPhotoId: string }[]) => Promise<void>
-  saveToCalendar: (photos: { photoId: string; category: string }[]) => Promise<void>
+  saveToCalendar: () => Promise<void>
   reset: () => void
 }
 
@@ -70,25 +70,28 @@ export const useUploadStore = create<UploadState>((set, get) => ({
   submitDuplicates: async (selections) => {
     const { uploadId, duplicateGroups, classifiedPhotos } = get()
     if (!uploadId) return
-    await submitDuplicateSelection(uploadId, selections)
 
-    const removedIds = new Set(
-      duplicateGroups.flatMap((group) => {
-        const selection = selections.find((s) => s.groupId === group.groupId)
-        if (!selection) return []
-        return group.photos
-          .filter((p) => p.photoId !== selection.selectedPhotoId)
-          .map((p) => p.photoId)
-      }),
-    )
+    const fullSelections = selections.map((sel) => {
+      const group = duplicateGroups.find((g) => g.groupId === sel.groupId)
+      const unselectedPhotoIds = group
+        ? group.photos
+            .filter((p) => p.photoId !== sel.selectedPhotoId)
+            .map((p) => p.photoId)
+        : []
+      return { ...sel, unselectedPhotoIds }
+    })
+
+    await submitDuplicateSelection(uploadId, fullSelections)
+
+    const removedIds = new Set(fullSelections.flatMap((s) => s.unselectedPhotoIds))
     set({ classifiedPhotos: classifiedPhotos.filter((p) => !removedIds.has(p.photoId)) })
   },
 
-  saveToCalendar: async (photos) => {
+  saveToCalendar: async () => {
     const { uploadId } = get()
     if (!uploadId) return
     set({ isSaving: true })
-    await saveToCalendar(uploadId, photos)
+    await saveToCalendar(uploadId)
     set({ isSaving: false })
   },
 

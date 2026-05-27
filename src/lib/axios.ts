@@ -8,7 +8,6 @@ const addInterceptors = (instance: ReturnType<typeof axios.create>) => {
     if (token) config.headers.Authorization = `Bearer ${token}`
     return config
   })
-
   instance.interceptors.response.use(
     (res) => {
       if (res.data && 'success' in res.data) res.data = res.data.data
@@ -20,14 +19,12 @@ const addInterceptors = (instance: ReturnType<typeof axios.create>) => {
         window.location.href = '/login'
       }
       return Promise.reject(error)
-    }
+    },
   )
-
   return instance
 }
 
 const api = addInterceptors(axios.create({ baseURL, timeout: 15000 }))
-
 export const uploadApi = addInterceptors(axios.create({ baseURL, timeout: 300000 }))
 
 export default api
