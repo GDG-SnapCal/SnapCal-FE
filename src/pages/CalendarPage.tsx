@@ -222,9 +222,9 @@ export default function CalendarPage() {
                     key={day}
                     type="button"
                     className="relative h-[100px] w-full overflow-hidden rounded-[14px]"
-                   onClick={() => setSelectedDay(day)}
-    
-                  >
+                  onClick={() => navigate(`/calendar/${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`)}
+          
+              >
                     <img
                       src={entry.representativePhoto.thumbnailUrl}
                       alt=""
@@ -307,51 +307,7 @@ export default function CalendarPage() {
         </div>
       </div>
 
-     {selectedDay !== null && (
-  <div className="fixed inset-0 z-40 flex justify-center">
-    <div className="relative flex h-full w-full max-w-[390px] flex-col bg-black/60">
-      {/* 헤더 */}
-      <div className="flex items-center px-[30px] pt-[52px]">
-        <span className="text-[22px] font-black text-white">
-          {currentMonth}월 {selectedDay}일의 사진
-        </span>
-        <button
-          type="button"
-          onClick={() => setSelectedDay(null)}
-          className="ml-auto flex size-[32px] items-center justify-center rounded-full bg-white/20"
-        >
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-            <path d="M1 1L11 11M11 1L1 11" stroke="white" strokeWidth="1.8" strokeLinecap="round" />
-          </svg>
-        </button>
-      </div>
-
-      <p className="mt-1 px-[30px] text-[12px] text-white/60">
-        캘린더에 표시될 대표사진을 선택 할 수 있어요
-      </p>
-
-      {/* 사진 그리드 */}
-      <div className="mt-4 flex-1 overflow-y-auto px-[30px]">
-        <div className="grid grid-cols-3 gap-[6px]">
-          <div className="flex h-[110px] items-center justify-center rounded-[14px] border-2 border-dashed border-white/30">
-            <span className="text-[10px] text-white/50">사진 없음</span>
-          </div>
-        </div>
-      </div>
-
-      {/* 저장 버튼 */}
-      <div className="px-[30px] pb-10 pt-4">
-        <button
-          type="button"
-          onClick={() => setSelectedDay(null)}
-          className="h-[54px] w-full rounded-[27px] bg-[#a8d8ea] text-[15px] font-bold text-[#2a4a57]"
-        >
-          대표사진 저장
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+    
     </div>
   )
 }
