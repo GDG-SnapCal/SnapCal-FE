@@ -12,6 +12,8 @@ interface CalendarState {
   setCategory: (category: PhotoCategory | 'all') => void
   goToPrevMonth: () => void
   goToNextMonth: () => void
+  goToPrevYear : () => void
+  goToNextYear : () => void
 }
 
 const today = new Date()
@@ -67,5 +69,21 @@ export const useCalendarStore = create<CalendarState>((set, get) => ({
         : { year: currentYear, month: currentMonth + 1 }
     set({ currentYear: next.year, currentMonth: next.month })
     fetchCalendar(next.year, next.month)
+  },
+
+  goToNextYear: () => {
+    const { currentYear, currentMonth, fetchCalendar } = get()
+     const next = { year: currentYear + 1, month: currentMonth }
+    set({ currentYear: next.year, currentMonth: next.month })
+    fetchCalendar(next.year, next.month)
+    
+  },
+
+  goToPrevYear: () => {
+     const { currentYear, currentMonth, fetchCalendar } = get()
+     const prev = { year: currentYear -1 , month: currentMonth }
+    set({ currentYear: prev.year, currentMonth: prev.month })
+    fetchCalendar(prev.year, prev.month)
+    
   },
 }))

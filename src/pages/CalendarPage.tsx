@@ -1,7 +1,8 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useCalendarStore } from '../stores/calendarStore'
 import type { PhotoCategory } from '../types'
+import { useAuthStore } from '../stores/authStore'
 
 const CATEGORY_GRADIENT: Record<string, [string, string]> = {
   음식: ['#fae4d4', '#b07f5e'],
@@ -25,6 +26,9 @@ const DAY_LABELS = ['일', '월', '화', '수', '목', '금', '토']
 
 export default function CalendarPage() {
   const navigate = useNavigate()
+  const user = useAuthStore((s) => s.user)
+
+
   const {
     currentYear,
     currentMonth,
@@ -45,6 +49,9 @@ export default function CalendarPage() {
   const firstDayOfMonth = new Date(currentYear, currentMonth - 1, 1).getDay()
   const daysInMonth = new Date(currentYear, currentMonth, 0).getDate()
   const totalCount = Object.values(calendarData).reduce((s, d) => s + d.count, 0)
+  const [selectedDay, setSelectedDay ] = useState<number | null >(null)
+  const [ overlayCategory, setOverlayCategory] = useState<PhotoCategory | 'all'>('all')
+
 
   const cells: (number | null)[] = [
     ...Array(firstDayOfMonth).fill(null),
@@ -61,9 +68,9 @@ export default function CalendarPage() {
   }
 
   return (
-    <div className="flex min-h-svh flex-col bg-white">
+    <div className="flex min-h-svh flex-col bg-white px-[30px] pt-0">
       {/* App Header */}
-      <div className="flex items-center px-[18px] pt-[52px]">
+      <div className="flex items-center  pt-[52px]">
         <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
           <path
             d="M21 14C21 10.13 17.87 7 14 7H12C8.13 7 5 10.13 5 14C5 17.87 8.13 21 12 21H14C17.87 21 21 17.87 21 14Z"
@@ -108,10 +115,11 @@ export default function CalendarPage() {
       </div>
 
       {/* Month navigation */}
-      <div className="flex items-center px-[18px] pt-3">
+      <div className="flex items-center pt-3">
         <span className="text-[22px] font-black tracking-[-0.55px] text-[#2c2c2c]">
-          {currentYear}년 {currentMonth}월
-        </span>
+            {user?.name ? `${user.name}님의 ${currentMonth}월` : `${currentYear}년 ${currentMonth}월`}
+          </span>
+          
         {totalCount > 0 && (
           <span className="ml-3 text-[12px] font-bold text-[#7cb5d9]">{totalCount}장</span>
         )}
@@ -131,6 +139,9 @@ export default function CalendarPage() {
               />
             </svg>
           </button>
+
+          <span className="text-[13px] font-bold text-[#2c2c2c] pt-1">{currentYear}</span>
+
           <button
             type="button"
             onClick={goToNextMonth}
@@ -150,7 +161,7 @@ export default function CalendarPage() {
       </div>
 
       {/* Category filter chips */}
-      <div className="mt-3 flex gap-2 overflow-x-auto px-[18px] pb-1 [&::-webkit-scrollbar]:hidden">
+      <div className="mt-3 flex gap-2 overflow-x-auto pb-1 [&::-webkit-scrollbar]:hidden">
         {FILTERS.map((f) => {
           const active = selectedCategory === f.value
           return (
@@ -174,10 +185,11 @@ export default function CalendarPage() {
             </button>
           )
         })}
+        <div className="w-[30px] flex-shrink-0" />
       </div>
 
       {/* Day-of-week labels */}
-      <div className="mt-3 grid grid-cols-7 px-3">
+      <div className="mt-3 grid grid-cols-7 ">
         {DAY_LABELS.map((d, i) => (
           <div
             key={d}
@@ -190,7 +202,7 @@ export default function CalendarPage() {
       </div>
 
       {/* Calendar grid */}
-      <div className="mt-2 flex-1 px-3 pb-[100px]">
+      <div className="mt-2 flex-1  pb-[100px]">
         {isLoading ? (
           <div className="flex h-32 items-center justify-center text-[13px] text-[#9e9e9e]">
             불러오는 중...
@@ -210,7 +222,9 @@ export default function CalendarPage() {
                     key={day}
                     type="button"
                     className="relative h-[100px] w-full overflow-hidden rounded-[14px]"
-                  >
+                  onClick={() => navigate(`/calendar/${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`)}
+          
+              >
                     <img
                       src={entry.representativePhoto.thumbnailUrl}
                       alt=""
@@ -292,6 +306,8 @@ export default function CalendarPage() {
           </button>
         </div>
       </div>
+
+    
     </div>
   )
 }

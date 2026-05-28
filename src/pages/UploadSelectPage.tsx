@@ -47,7 +47,41 @@ export default function UploadSelectPage() {
   }
 
   return (
-    <div className="flex min-h-svh flex-col bg-white">
+    
+    <div className=" relatvie flex min-h-svh flex-col bg-white">
+
+      {isUploading && (
+  <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/70">
+    <svg
+      className="animate-spin"
+      width="64"
+      height="64"
+      viewBox="0 0 64 64"
+      fill="none"
+    >
+      <circle
+        cx="32"
+        cy="32"
+        r="26"
+        stroke="#3a3a3a"
+        strokeWidth="6"
+      />
+      <path
+        d="M32 6 A26 26 0 0 1 58 32"
+        stroke="url(#spinner-grad)"
+        strokeWidth="6"
+        strokeLinecap="round"
+      />
+      <defs>
+        <linearGradient id="spinner-grad" x1="32" y1="6" x2="58" y2="32" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#c8e6f0" />
+          <stop offset="100%" stopColor="#7cb5d9" />
+        </linearGradient>
+      </defs>
+    </svg>
+    <p className="mt-4 text-[14px] font-bold text-white">AI 분류 중...</p>
+  </div>
+)}
       <AppBar title="사진 업로드" />
 
       <div className="flex flex-1 flex-col px-4 pt-2 pb-6">

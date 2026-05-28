@@ -1,6 +1,7 @@
 import api, { uploadApi } from '../lib/axios'
 import type { DuplicateGroup, ClassifiedPhoto } from '../types'
 
+
 interface UploadResponse {
   uploadId: string
   status: 'done' | 'processing'
@@ -41,3 +42,10 @@ export const editPhoto = (
     textLayers: { text: string; x: number; y: number; fontSize: number; color: string }[]
   },
 ) => api.post<{ photoId: string; editedUrl: string }>(`/photos/${photoId}/edit`, options)
+
+
+export const getDayPhotos = (date: string, category? : string) => 
+  api.get(`/photos`, { params: {date, category}})
+
+export const setRepresentativePhoto = (date: string, photoId: string) => 
+  api.patch(`/photos/${photoId}/representative`, { date })
