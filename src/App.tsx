@@ -9,9 +9,11 @@ import ClassifyResultPage from './pages/ClassifyResultPage'
 import ImageEditPage from './pages/ImageEditPage'
 import SharePage from './pages/SharePage'
 import DayPhotoPage from './pages/DatePhotoPage'
+import { ToastProvider } from './components/Toast'
 
 export default function App() {
   return (
+  <ToastProvider>
     <Routes>
       <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="/login" element={<LoginPage />} />
@@ -25,5 +27,7 @@ export default function App() {
       <Route path ="/calendar/:date" element = {<DayPhotoPage/>}/>
       <Route path="/share" element={<SharePage />} />
     </Routes>
+  </ToastProvider>
+
   )
 }

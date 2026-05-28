@@ -4,6 +4,7 @@ import { useAuthStore } from '../stores/authStore'
 import AuthHero from '../components/common/AuthHero'
 import InputField from '../components/common/InputField'
 import Button from '../components/common/Button'
+import { useToast } from '../components/Toast'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -14,6 +15,7 @@ export default function LoginPage() {
 
   const login = useAuthStore((s) => s.login)
   const navigate = useNavigate()
+  const showToast = useToast()
 
   const isValid = email.trim() !== '' && password.trim() !== ''
 
@@ -24,6 +26,7 @@ export default function LoginPage() {
       setIsLoading(true)
       setErrorMessage(null)
       await login(email, password)
+      showToast(`환영합니다`,'success')
       navigate('/calendar')
     } catch {
       setErrorMessage('이메일 또는 비밀번호가 올바르지 않습니다.')

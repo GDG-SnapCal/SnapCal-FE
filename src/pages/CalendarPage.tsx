@@ -139,6 +139,9 @@ export default function CalendarPage() {
               />
             </svg>
           </button>
+
+          <span className="text-[13px] font-bold text-[#2c2c2c] pt-1">{currentYear}</span>
+
           <button
             type="button"
             onClick={goToNextMonth}
