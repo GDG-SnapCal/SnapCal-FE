@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useCalendarStore } from '../stores/calendarStore'
 import type { PhotoCategory } from '../types'
 import { useAuthStore } from '../stores/authStore'
+import EmptyCategoryCard from '../components/EmptyCategoryCard'
 
 const CATEGORY_GRADIENT: Record<string, [string, string]> = {
   음식: ['#fae4d4', '#b07f5e'],
@@ -66,6 +67,10 @@ export default function CalendarPage() {
     if (selectedCategory !== 'all' && entry.representativePhoto.category !== selectedCategory) return null
     return entry
   }
+
+  const isEmpty =
+    !isLoading &&
+    cells.every((day) => day === null || getEntry(day) === null)
 
   return (
     <div className="flex min-h-svh flex-col bg-white px-[30px] pt-0">
@@ -140,7 +145,7 @@ export default function CalendarPage() {
             </svg>
           </button>
 
-          <span className="text-[13px] font-bold text-[#2c2c2c] pt-1">{currentYear}</span>
+          <span className="text-[13px] font-bold text-[#2c2c2c] pt-1">{currentMonth}월</span>
 
           <button
             type="button"
@@ -202,12 +207,13 @@ export default function CalendarPage() {
       </div>
 
       {/* Calendar grid */}
-      <div className="mt-2 flex-1  pb-[100px]">
+      <div className="relative mt-2 flex-1 pb-[100px]">
         {isLoading ? (
           <div className="flex h-32 items-center justify-center text-[13px] text-[#9e9e9e]">
             불러오는 중...
           </div>
         ) : (
+          <>
           <div className="grid grid-cols-7 gap-1">
             {cells.map((day, idx) => {
               if (day === null) {
@@ -255,6 +261,13 @@ export default function CalendarPage() {
               )
             })}
           </div>
+          {isEmpty && (
+            <EmptyCategoryCard
+              category={selectedCategory}
+              onViewAll={() => setCategory('all')}
+            />
+          )}
+          </>
         )}
       </div>
 
@@ -294,15 +307,15 @@ export default function CalendarPage() {
             </svg>
           </button>
 
-          {/* Gallery tab */}
-          <button type="button" className="flex flex-col items-center gap-[3px]">
+          {/* 공유하기 tab → 캘린더 내보내기 */}
+          <button type="button" onClick={() => navigate('/share/select')} className="flex flex-col items-center gap-[3px]">
             <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
               <rect x="3" y="3" width="7" height="7" rx="2" stroke="#b0b0b0" strokeWidth="1.6" />
               <rect x="12" y="3" width="7" height="7" rx="2" stroke="#b0b0b0" strokeWidth="1.6" />
               <rect x="3" y="12" width="7" height="7" rx="2" stroke="#b0b0b0" strokeWidth="1.6" />
               <rect x="12" y="12" width="7" height="7" rx="2" stroke="#b0b0b0" strokeWidth="1.6" />
             </svg>
-            <span className="text-[10px] font-medium text-[#9e9e9e]">갤러리</span>
+            <span className="text-[10px] font-medium text-[#9e9e9e]">공유하기</span>
           </button>
         </div>
       </div>
