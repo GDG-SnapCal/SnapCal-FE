@@ -4,16 +4,16 @@ import type { DuplicateGroup, ClassifiedPhoto } from '../types'
 
 interface UploadResponse {
   uploadId: string
-  status: 'done' | 'processing'
-  duplicateGroups?: DuplicateGroup[]
-  classifications?: ClassifiedPhoto[]
+  total: number
 }
 
 interface UploadStatusResponse {
-  status: 'done' | 'processing' | 'error'
+  uploadId: string
+  status: 'done' | 'processing'
+  total: number
+  completed: number
   duplicateGroups?: DuplicateGroup[]
   classifications?: ClassifiedPhoto[]
-  error?: string
 }
 
 export const uploadPhotos = (files: File[]) => {

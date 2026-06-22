@@ -13,6 +13,8 @@ export default function UploadSelectPage() {
   const setSelectedFiles = useUploadStore((s) => s.setSelectedFiles)
   const upload = useUploadStore((s) => s.upload)
   const isUploading = useUploadStore((s) => s.isUploading)
+  const total = useUploadStore((s) => s.total)
+  const completed = useUploadStore((s) => s.completed)
 
   const objectUrls = useMemo(
     () => selectedFiles.map((file) => URL.createObjectURL(file)),
@@ -59,13 +61,7 @@ export default function UploadSelectPage() {
       viewBox="0 0 64 64"
       fill="none"
     >
-      <circle
-        cx="32"
-        cy="32"
-        r="26"
-        stroke="#3a3a3a"
-        strokeWidth="6"
-      />
+      <circle cx="32" cy="32" r="26" stroke="#3a3a3a" strokeWidth="6" />
       <path
         d="M32 6 A26 26 0 0 1 58 32"
         stroke="url(#spinner-grad)"
@@ -79,7 +75,17 @@ export default function UploadSelectPage() {
         </linearGradient>
       </defs>
     </svg>
-    <p className="mt-4 text-[14px] font-bold text-white">AI 분류 중...</p>
+    <p className="mt-4 text-[14px] font-bold text-white">
+      {total > 0 ? `AI 분류 중... ${completed}/${total}` : 'AI 분류 중...'}
+    </p>
+    {total > 0 && (
+      <div className="mt-3 h-1.5 w-48 overflow-hidden rounded-full bg-white/20">
+        <div
+          className="h-full rounded-full bg-[#a8d8ea] transition-all duration-500"
+          style={{ width: `${(completed / total) * 100}%` }}
+        />
+      </div>
+    )}
   </div>
 )}
       <AppBar title="사진 업로드" />
