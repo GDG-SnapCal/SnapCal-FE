@@ -25,7 +25,7 @@ export const getCalendar = (year: number, month: number, category?: PhotoCategor
 export const saveToCalendar = (uploadId: string) =>
   api.post<{ message: string }>('/calendar/save', { uploadId })
 
-export const exportCalendar = (year: number, month: number, ratio: '1:1' | '4:5' | '16:9') =>
+export const exportCalendar = (year: number, month: number, ratio: '1:1' | '4:5' | '9:16') =>
   api.post<{ imageUrl: string; expiresAt: string }>('/calendar/export', { year, month, ratio })
 
 export const createShareLink = (year: number, month: number) =>

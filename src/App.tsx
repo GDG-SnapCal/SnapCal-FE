@@ -7,6 +7,7 @@ import UploadSelectPage from './pages/UploadSelectPage'
 import DuplicateSelectPage from './pages/DuplicateSelectPage'
 import ClassifyResultPage from './pages/ClassifyResultPage'
 import ImageEditPage from './pages/ImageEditPage'
+import ShareSelectPage from './pages/ShareSelectPage'
 import SharePage from './pages/SharePage'
 import DayPhotoPage from './pages/DatePhotoPage'
 import { ToastProvider } from './components/Toast'
@@ -28,6 +29,7 @@ export default function App() {
       <Route path ="/calendar/:date" element = {<DayPhotoPage/>}/>
       <Route path ="/calendar/:date/representative" element = {<RepresentativeSelectPage/>}/>
 
+      <Route path="/share/select" element={<ShareSelectPage />} />
       <Route path="/share" element={<SharePage />} />
 
     </Routes>
