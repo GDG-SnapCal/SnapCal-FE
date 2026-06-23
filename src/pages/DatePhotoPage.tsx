@@ -72,7 +72,7 @@ export default function DayDetailPage() {
           </svg>
         </button>
         <div className="flex flex-1 flex-col items-center">
-          <span className="text-[11px] font-medium text-[#9e9e9e]">{dayOfWeek}RIDAY</span>
+          <span className="text-[11px] font-medium text-[#9e9e9e]">{dayOfWeek}요일</span>
           <span className="text-[18px] font-black text-[#2c2c2c]">{month}월 {day}일</span>
         </div>
         <button
@@ -178,16 +178,23 @@ export default function DayDetailPage() {
             </div>
             <span className="text-[11px] font-medium text-[#2c2c2c]">대표변경</span>
           </button>
-
-          {/* 편집 */}
-          <button type="button" className="flex flex-col items-center gap-[6px]">
+          
+          <button
+          type="button"
+          onClick={() => {
+            if (!selectedPhoto) return
+            navigate(`/photos/${selectedPhoto.photoId}/edit`)
+          }}
+          disabled={!selectedPhoto}
+          className="flex flex-col items-center gap-[6px] disabled:opacity-40"
+          >
             <div className="flex size-[52px] items-center justify-center rounded-full bg-[#f0f8ff]">
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                 <path d="M14 3L17 6L7 16H4V13L14 3Z" stroke="#9e9e9e" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
+                </svg>
             </div>
-            <span className="text-[11px] font-medium text-[#9e9e9e]">편집</span>
-          </button>
+                <span className="text-[11px] font-medium text-[#9e9e9e]">편집</span>     
+         </button>
 
           {/* 공유 */}
           <button type="button" className="flex flex-col items-center gap-[6px]">
