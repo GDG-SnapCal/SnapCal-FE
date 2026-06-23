@@ -56,7 +56,7 @@ export default function RepresentativeSelectPage() {
     if (!date || !selectedPhoto) return
     try {
       setIsSaving(true)
-      await setRepresentativePhoto(date, selectedPhoto.photoId)
+      await setRepresentativePhoto(selectedPhoto.photoId)
       navigate(-1)
     } catch {
     } finally {

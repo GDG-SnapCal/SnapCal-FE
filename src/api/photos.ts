@@ -47,5 +47,5 @@ export const editPhoto = (
 export const getDayPhotos = (date: string, category? : string) => 
   api.get(`/photos`, { params: {date, category}})
 
-export const setRepresentativePhoto = (date: string, photoId: string) => 
-  api.patch(`/photos/${photoId}/representative`, { date })
+export const setRepresentativePhoto = (photoId: string) =>
+  api.patch(`/photos/${photoId}/representative`)
