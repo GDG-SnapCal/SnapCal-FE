@@ -84,16 +84,7 @@ export default function DayDetailPage() {
           <span className="text-[11px] font-medium text-[#9e9e9e]">{dayOfWeek}요일</span>
           <span className="text-[18px] font-black text-[#2c2c2c]">{month}월 {day}일</span>
         </div>
-        <button
-          type="button"
-          className="flex size-[36px] items-center justify-center rounded-full bg-[#f0f8ff]"
-        >
-          <svg width="16" height="4" viewBox="0 0 16 4" fill="none">
-            <circle cx="2" cy="2" r="2" fill="#9e9e9e" />
-            <circle cx="8" cy="2" r="2" fill="#9e9e9e" />
-            <circle cx="14" cy="2" r="2" fill="#9e9e9e" />
-          </svg>
-        </button>
+        <div className="size-[36px]" />
       </div>
 
       {/* 대표사진 */}
@@ -187,7 +178,14 @@ export default function DayDetailPage() {
           type="button"
           onClick={() => {
             if (!selectedPhoto) return
-            navigate(`/photos/${selectedPhoto.photoId}/edit`)
+            navigate(`/photos/${selectedPhoto.photoId}/edit`, {
+              state: {
+                originalUrl: selectedPhoto.originalUrl,
+                thumbnailUrl: selectedPhoto.thumbnailUrl,
+                category: selectedPhoto.category,
+                takenAt: selectedPhoto.takenAt,
+              },
+            })
           }}
           disabled={!selectedPhoto}
           className="flex flex-col items-center gap-[6px] disabled:opacity-40"
@@ -199,17 +197,6 @@ export default function DayDetailPage() {
             </div>
                 <span className="text-[11px] font-medium text-[#9e9e9e]">편집</span>     
          </button>
-
-          {/* 공유 */}
-          <button type="button" className="flex flex-col items-center gap-[6px]">
-            <div className="flex size-[52px] items-center justify-center rounded-full bg-[#f0f8ff]">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M10 3V13M10 3L6 7M10 3L14 7" stroke="#9e9e9e" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M3 13V16H17V13" stroke="#9e9e9e" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </div>
-            <span className="text-[11px] font-medium text-[#9e9e9e]">공유</span>
-          </button>
 
           {/* 삭제 */}
           <button type="button" className="flex flex-col items-center gap-[6px]">

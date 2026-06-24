@@ -1,8 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useRef, useState } from 'react'
+import { useNavigate, useParams, useLocation } from 'react-router-dom'
 import html2canvas from 'html2canvas'
 import AppBar from '../components/common/AppBar'
-import { getPhotoDetail } from '../api/photos'
 
 // ─── 타입 ─────────────────────────────────────────────────────
 interface TextLayer {
@@ -18,15 +17,20 @@ interface TextLayer {
 
 type FilterKey = '원본' | '밝게' | '따뜻하게' | '흑백' | '빈티지'
 
-interface PhotoDetail {
-  photoId: string
-  url: string
+const CATEGORY_COLORS: Record<string, string> = {
+  음식: '#FAC775',
+  패션: '#F4C0D1',
+  운동: '#9FE1CB',
+  풍경: '#B5D4F4',
+  일상: '#D3D1C7',
+  미분류: '#E8E8E8',
+}
+
+interface PhotoState {
+  originalUrl: string
   thumbnailUrl: string | null
   takenAt: string
-  category: {
-    name: string
-    colorHex: string
-  }
+  category: string
 }
 
 // ─── 필터 정의 ────────────────────────────────────────────────
@@ -82,8 +86,8 @@ function applyCanvasFilter(
 export default function ImageEditPage() {
   const { photoId } = useParams<{ photoId: string }>()
   const navigate    = useNavigate()
-
-  const [photo,          setPhoto]          = useState<PhotoDetail | null>(null)
+  const location    = useLocation()
+  const photo       = (location.state as PhotoState | null)
   const [activeTab,      setActiveTab]      = useState<'텍스트' | '필터'>('텍스트')
   const [textLayers,     setTextLayers]     = useState<TextLayer[]>([])
   const [activeTextId,   setActiveTextId]   = useState<number | null>(null)
@@ -101,12 +105,7 @@ export default function ImageEditPage() {
 
   const TEXT_COLORS = ['#ffffff', '#1a1a1a', '#4a90d9', '#e89baa', '#f5c842']
 
-  useEffect(() => {
-    if (!photoId) return
-    getPhotoDetail(photoId).then(({ data }) => setPhoto(data))
-  }, [photoId])
-
-  const imageUrl = photo?.url ?? photo?.thumbnailUrl ?? null
+  const imageUrl = photo?.originalUrl ?? photo?.thumbnailUrl ?? null
 
   // ── 텍스트 추가 버튼 ──
   const handleAddTextClick = () => {
@@ -233,7 +232,7 @@ export default function ImageEditPage() {
       <div className="px-5 pb-1 pt-1">
         <p className="text-[12px] text-[#b0b0b0]">
           {takenDate}
-          {photo?.category?.name && ` · ${photo.category.name}`}
+          {photo?.category && ` · ${photo.category}`}
         </p>
         <p className="text-[18px] font-black text-[#2c2c2c]">
           {isTyping ? '텍스트를 입력하세요' : '사진을 꾸며볼까요?'}
@@ -389,7 +388,7 @@ export default function ImageEditPage() {
                   style={{
                     border: selectedFilter === f ? '2.5px solid #a8d8ea' : '2px solid transparent',
                     filter: FILTERS[f],
-                    backgroundColor: photo?.category?.colorHex ?? '#e0c8a0',
+                    backgroundColor: CATEGORY_COLORS[photo?.category ?? ''] ?? '#e0c8a0',
                   }}
                 >
                   {imageUrl && (
@@ -464,7 +463,7 @@ export default function ImageEditPage() {
               )}
               <div>
                 <p className="text-[13px] font-bold text-[#2c2c2c]">
-                  {photo?.category?.name ?? ''} · 편집됨
+                  {photo?.category ?? ''} · 편집됨
                 </p>
                 <p className="text-[12px] text-[#b0b0b0]">{takenDate}</p>
               </div>
