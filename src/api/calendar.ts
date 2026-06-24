@@ -1,21 +1,31 @@
 import api from '../lib/axios'
-import type { CalendarDateEntry, PhotoCategory } from '../types'
+import type { PhotoCategory } from '../types'
 
-interface CalendarResponse {
+interface CalendarPhoto {
+  photoId: string
+  thumbnailUrl: string
+  category: string
+  categoryColor: string
+}
+
+interface CalendarDay {
+  date: string
+  photos: CalendarPhoto[]
+}
+
+export interface CalendarResponse {
   year: number
   month: number
-  dates: Record<string, CalendarDateEntry>
+  days: CalendarDay[]
 }
 
 export const getCalendar = (year: number, month: number, category?: PhotoCategory) =>
   api.get<CalendarResponse>('/calendar', { params: { year, month, category } })
 
-export const saveToCalendar = (
-  uploadId: string,
-  photos: { photoId: string; category: string; date: string }[]
-) => api.post<{ savedCount: number }>('/calendar/save', { uploadId, photos })
+export const saveToCalendar = (uploadId: string) =>
+  api.post<{ message: string }>('/calendar/save', { uploadId })
 
-export const exportCalendar = (year: number, month: number, ratio: '1:1' | '4:5' | '16:9') =>
+export const exportCalendar = (year: number, month: number, ratio: '1:1' | '4:5' | '9:16') =>
   api.post<{ imageUrl: string; expiresAt: string }>('/calendar/export', { year, month, ratio })
 
 export const createShareLink = (year: number, month: number) =>

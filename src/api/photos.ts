@@ -1,24 +1,25 @@
-import api from '../lib/axios'
+import api, { uploadApi } from '../lib/axios'
 import type { DuplicateGroup, ClassifiedPhoto } from '../types'
+
 
 interface UploadResponse {
   uploadId: string
-  status: 'done' | 'processing'
-  duplicateGroups?: DuplicateGroup[]
-  classifications?: ClassifiedPhoto[]
+  total: number
 }
 
 interface UploadStatusResponse {
-  status: 'done' | 'processing' | 'error'
+  uploadId: string
+  status: 'done' | 'processing'
+  total: number
+  completed: number
   duplicateGroups?: DuplicateGroup[]
   classifications?: ClassifiedPhoto[]
-  error?: string
 }
 
 export const uploadPhotos = (files: File[]) => {
   const formData = new FormData()
   files.forEach((file) => formData.append('photos', file))
-  return api.post<UploadResponse>('/photos/upload', formData)
+  return uploadApi.post<UploadResponse>('/photos/upload', formData)
 }
 
 export const getUploadStatus = (uploadId: string) =>
@@ -26,8 +27,11 @@ export const getUploadStatus = (uploadId: string) =>
 
 export const submitDuplicateSelection = (
   uploadId: string,
-  selections: { groupId: string; selectedPhotoId: string }[]
+  selections: { groupId: string; selectedPhotoId: string; unselectedPhotoIds: string[] }[],
 ) => api.post('/photos/duplicates/select', { uploadId, selections })
+
+export const updatePhotoCategory = (photoId: string, categoryId: number) =>
+  api.patch(`/photos/${photoId}/category`, { categoryId })
 
 export const editPhoto = (
   photoId: string,
@@ -36,5 +40,27 @@ export const editPhoto = (
     blur: number
     filter: string | null
     textLayers: { text: string; x: number; y: number; fontSize: number; color: string }[]
-  }
+  },
 ) => api.post<{ photoId: string; editedUrl: string }>(`/photos/${photoId}/edit`, options)
+
+
+export const getDayPhotos = (date: string, category?: string) =>
+  api.get(`/photos`, { params: { date, category } })
+
+export const getPhotoDetail = (photoId: string) =>
+  api.get(`/photos/${photoId}`)
+
+export const setRepresentativePhoto = (photoId: string) =>
+  api.patch(`/photos/${photoId}/representative`)
+
+export const deletePhoto = (photoId: string) =>
+  api.delete(`/photos/${photoId}`)
+
+export const updatePhotoImage = (photoId: string, blob: Blob) => {
+  const formData = new FormData()
+  formData.append('file', blob, 'edited.jpg')
+  return uploadApi.patch<{ photoId: string; originalUrl: string; thumbnailUrl: string | null }>(
+    `/photos/${photoId}/image`,
+    formData,
+  )
+}

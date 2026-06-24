@@ -10,11 +10,13 @@ interface UploadState {
   classifiedPhotos: ClassifiedPhoto[]
   isUploading: boolean
   isSaving: boolean
+  total: number
+  completed: number
   setSelectedFiles: (files: File[]) => void
   upload: () => Promise<'duplicate' | 'classify'>
   pollStatus: () => Promise<void>
   submitDuplicates: (selections: { groupId: string; selectedPhotoId: string }[]) => Promise<void>
-  saveToCalendar: (photos: { photoId: string; category: string; date: string }[]) => Promise<void>
+  saveToCalendar: () => Promise<void>
   reset: () => void
 }
 
@@ -25,6 +27,8 @@ export const useUploadStore = create<UploadState>((set, get) => ({
   classifiedPhotos: [],
   isUploading: false,
   isSaving: false,
+  total: 0,
+  completed: 0,
 
   setSelectedFiles: (files) => set({ selectedFiles: files }),
 
@@ -33,17 +37,7 @@ export const useUploadStore = create<UploadState>((set, get) => ({
     set({ isUploading: true })
     const { data } = await uploadPhotos(selectedFiles)
     set({ uploadId: data.uploadId })
-
-    if (data.status === 'processing') {
-      await get().pollStatus()
-    } else {
-      set({
-        duplicateGroups: data.duplicateGroups ?? [],
-        classifiedPhotos: data.classifications ?? [],
-        isUploading: false,
-      })
-    }
-
+    await get().pollStatus()
     const { duplicateGroups } = get()
     return duplicateGroups.length > 0 ? 'duplicate' : 'classify'
   },
@@ -54,8 +48,9 @@ export const useUploadStore = create<UploadState>((set, get) => ({
 
     const poll = async (): Promise<void> => {
       const { data } = await getUploadStatus(uploadId)
+      set({ total: data.total, completed: data.completed })
       if (data.status === 'processing') {
-        await new Promise((r) => setTimeout(r, 2500))
+        await new Promise((r) => setTimeout(r, 2000))
         return poll()
       }
       set({
@@ -68,16 +63,30 @@ export const useUploadStore = create<UploadState>((set, get) => ({
   },
 
   submitDuplicates: async (selections) => {
-    const { uploadId } = get()
+    const { uploadId, duplicateGroups, classifiedPhotos } = get()
     if (!uploadId) return
-    await submitDuplicateSelection(uploadId, selections)
+
+    const fullSelections = selections.map((sel) => {
+      const group = duplicateGroups.find((g) => g.groupId === sel.groupId)
+      const unselectedPhotoIds = group
+        ? group.photos
+            .filter((p) => p.photoId !== sel.selectedPhotoId)
+            .map((p) => p.photoId)
+        : []
+      return { ...sel, unselectedPhotoIds }
+    })
+
+    await submitDuplicateSelection(uploadId, fullSelections)
+
+    const removedIds = new Set(fullSelections.flatMap((s) => s.unselectedPhotoIds))
+    set({ classifiedPhotos: classifiedPhotos.filter((p) => !removedIds.has(p.photoId)) })
   },
 
-  saveToCalendar: async (photos) => {
+  saveToCalendar: async () => {
     const { uploadId } = get()
     if (!uploadId) return
     set({ isSaving: true })
-    await saveToCalendar(uploadId, photos)
+    await saveToCalendar(uploadId)
     set({ isSaving: false })
   },
 
@@ -89,5 +98,7 @@ export const useUploadStore = create<UploadState>((set, get) => ({
       classifiedPhotos: [],
       isUploading: false,
       isSaving: false,
+      total: 0,
+      completed: 0,
     }),
 }))

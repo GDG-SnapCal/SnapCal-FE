@@ -20,27 +20,23 @@ export const useAuthStore = create<AuthState>((set) => ({
   login: async (email, password) => {
     const { data } = await loginWithEmail(email, password)
     localStorage.setItem('accessToken', data.accessToken)
-    localStorage.setItem('refreshToken', data.refreshToken)
     set({ user: data.user, accessToken: data.accessToken, isAuthenticated: true })
   },
 
   loginWithSocial: async (provider, accessToken) => {
     const { data } = await loginWithSocial(provider, accessToken)
     localStorage.setItem('accessToken', data.accessToken)
-    localStorage.setItem('refreshToken', data.refreshToken)
     set({ user: data.user, accessToken: data.accessToken, isAuthenticated: true })
   },
 
   signup: async (name, email, password) => {
     const { data } = await signup(name, email, password)
     localStorage.setItem('accessToken', data.accessToken)
-    localStorage.setItem('refreshToken', data.refreshToken)
     set({ user: data.user, accessToken: data.accessToken, isAuthenticated: true })
   },
 
   logout: () => {
     localStorage.removeItem('accessToken')
-    localStorage.removeItem('refreshToken')
     set({ user: null, accessToken: null, isAuthenticated: false })
   },
 }))
