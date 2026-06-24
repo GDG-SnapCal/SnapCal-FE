@@ -62,10 +62,7 @@ export default function CalendarPage() {
 
   const getEntry = (day: number) => {
     const key = `${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`
-    const entry = calendarData[key] ?? null
-    if (!entry) return null
-    if (selectedCategory !== 'all' && entry.representativePhoto.category !== selectedCategory) return null
-    return entry
+    return calendarData[key] ?? null
   }
 
   const isEmpty =

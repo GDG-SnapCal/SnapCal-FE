@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import AppBar from '../components/common/AppBar'
 import { useCalendarStore } from '../stores/calendarStore'
+import { getCalendar } from '../api/calendar'
 import type { PhotoCategory } from '../types'
 
 const FILTERS: { label: string; value: PhotoCategory | 'all' }[] = [
@@ -20,6 +21,8 @@ export default function ShareSelectPage() {
   const [year, setYear] = useState(currentYear)
   const [month, setMonth] = useState(currentMonth)
   const [category, setCategory] = useState<PhotoCategory | 'all'>(selectedCategory)
+  const [isChecking, setIsChecking] = useState(false)
+  const [emptyMsg, setEmptyMsg] = useState<string | null>(null)
 
   const goPrev = () => {
     if (month === 1) { setYear(y => y - 1); setMonth(12) }
@@ -31,9 +34,26 @@ export default function ShareSelectPage() {
     else setMonth(m => m + 1)
   }
 
-  const handleNext = () => {
-    const params = new URLSearchParams({ year: String(year), month: String(month), category })
-    navigate(`/share?${params.toString()}`)
+  const handleNext = async () => {
+    setIsChecking(true)
+    setEmptyMsg(null)
+    try {
+      const cat = category === 'all' ? undefined : category
+      const { data } = await getCalendar(year, month, cat)
+      const hasPhoto = (data.days ?? []).some((day) =>
+        cat ? day.photos.some((p) => p.category === cat) : day.photos.length > 0,
+      )
+      if (!hasPhoto) {
+        setEmptyMsg(`${year}년 ${month}월${cat ? ` ${cat}` : ''}에 사진이 없어요`)
+        return
+      }
+      const params = new URLSearchParams({ year: String(year), month: String(month), category })
+      navigate(`/share?${params.toString()}`)
+    } catch {
+      setEmptyMsg('불러오는 중 오류가 발생했어요')
+    } finally {
+      setIsChecking(false)
+    }
   }
 
   return (
@@ -97,12 +117,16 @@ export default function ShareSelectPage() {
 
       {/* Next button */}
       <div className="px-5 pb-10 pt-4">
+        {emptyMsg && (
+          <p className="mb-3 text-center text-[13px] font-medium text-[#e05c5c]">{emptyMsg}</p>
+        )}
         <button
           type="button"
           onClick={handleNext}
-          className="h-[54px] w-full rounded-[27px] bg-[#a8d8ea] text-[15px] font-bold text-[#2a4a57]"
+          disabled={isChecking}
+          className="h-[54px] w-full rounded-[27px] bg-[#a8d8ea] text-[15px] font-bold text-[#2a4a57] disabled:opacity-50"
         >
-          다음
+          {isChecking ? '확인 중...' : '다음'}
         </button>
       </div>
     </div>

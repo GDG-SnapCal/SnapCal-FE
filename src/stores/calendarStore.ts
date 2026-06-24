@@ -8,7 +8,7 @@ interface CalendarState {
   selectedCategory: PhotoCategory | 'all'
   calendarData: Record<string, CalendarDateEntry>
   isLoading: boolean
-  fetchCalendar: (year: number, month: number) => Promise<void>
+  fetchCalendar: (year: number, month: number, category?: PhotoCategory | 'all') => Promise<void>
   setCategory: (category: PhotoCategory | 'all') => void
   goToPrevMonth: () => void
   goToNextMonth: () => void
@@ -25,16 +25,18 @@ export const useCalendarStore = create<CalendarState>((set, get) => ({
   calendarData: {},
   isLoading: false,
 
-  fetchCalendar: async (year, month) => {
+  fetchCalendar: async (year, month, category?: PhotoCategory | 'all') => {
+    const cat = category === 'all' ? undefined : category
     set({ isLoading: true })
     try {
-      const { data } = await getCalendar(year, month)
+      const { data } = await getCalendar(year, month, cat)
       const calendarData = (data.days ?? []).reduce(
         (acc, day) => {
-          if (day.photos.length > 0) {
+          const photos = cat ? day.photos.filter((p) => p.category === cat) : day.photos
+          if (photos.length > 0) {
             acc[day.date] = {
-              count: day.photos.length,
-              representativePhoto: day.photos[0],
+              count: photos.length,
+              representativePhoto: photos[0],
             }
           }
           return acc
@@ -48,7 +50,9 @@ export const useCalendarStore = create<CalendarState>((set, get) => ({
   },
 
   setCategory: (category) => {
+    const { currentYear, currentMonth, fetchCalendar } = get()
     set({ selectedCategory: category })
+    fetchCalendar(currentYear, currentMonth, category)
   },
 
   goToPrevMonth: () => {
