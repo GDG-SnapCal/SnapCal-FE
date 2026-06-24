@@ -64,6 +64,3 @@ export const updatePhotoImage = (photoId: string, blob: Blob) => {
     formData,
   )
 }
-
-export const deletePhoto = (photoId: string) =>
-  api.delete(`/photos/${photoId}`)
