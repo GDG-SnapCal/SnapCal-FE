@@ -35,11 +35,15 @@ export const useUploadStore = create<UploadState>((set, get) => ({
   upload: async () => {
     const { selectedFiles } = get()
     set({ isUploading: true })
-    const { data } = await uploadPhotos(selectedFiles)
-    set({ uploadId: data.uploadId })
-    await get().pollStatus()
-    const { duplicateGroups } = get()
-    return duplicateGroups.length > 0 ? 'duplicate' : 'classify'
+    try {
+      const { data } = await uploadPhotos(selectedFiles)
+      set({ uploadId: data.uploadId })
+      await get().pollStatus()
+      const { duplicateGroups } = get()
+      return duplicateGroups.length > 0 ? 'duplicate' : 'classify'
+    } finally {
+      set({ isUploading: false })
+    }
   },
 
   pollStatus: async () => {
@@ -56,7 +60,6 @@ export const useUploadStore = create<UploadState>((set, get) => ({
       set({
         duplicateGroups: data.duplicateGroups ?? [],
         classifiedPhotos: data.classifications ?? [],
-        isUploading: false,
       })
     }
     await poll()
@@ -86,8 +89,11 @@ export const useUploadStore = create<UploadState>((set, get) => ({
     const { uploadId } = get()
     if (!uploadId) return
     set({ isSaving: true })
-    await saveToCalendar(uploadId)
-    set({ isSaving: false })
+    try {
+      await saveToCalendar(uploadId)
+    } finally {
+      set({ isSaving: false })
+    }
   },
 
   reset: () =>

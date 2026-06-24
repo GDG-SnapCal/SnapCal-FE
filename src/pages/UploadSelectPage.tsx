@@ -2,12 +2,14 @@ import { useEffect, useMemo, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import AppBar from '../components/common/AppBar'
 import { useUploadStore } from '../stores/uploadStore'
+import { useToast } from '../components/Toast'
 
 const MAX_FILES = 30
 const ACCEPT = '.jpg,.jpeg,.heic,.png'
 
 export default function UploadSelectPage() {
   const navigate = useNavigate()
+  const showToast = useToast()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const selectedFiles = useUploadStore((s) => s.selectedFiles)
   const setSelectedFiles = useUploadStore((s) => s.setSelectedFiles)
@@ -44,8 +46,12 @@ export default function UploadSelectPage() {
   }
 
   const handleStart = async () => {
-    const next = await upload()
-    navigate(next === 'duplicate' ? '/upload/duplicates' : '/upload/classify')
+    try {
+      const next = await upload()
+      navigate(next === 'duplicate' ? '/upload/duplicates' : '/upload/classify')
+    } catch {
+      showToast('업로드 중 오류가 발생했어요. 다시 시도해주세요.', 'error')
+    }
   }
 
   return (

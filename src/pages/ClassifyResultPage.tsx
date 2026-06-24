@@ -17,6 +17,7 @@ import AppBar from '../components/common/AppBar'
 import { useUploadStore } from '../stores/uploadStore'
 import { updatePhotoCategory } from '../api/photos'
 import { getCategories } from '../api/categories'
+import { useToast } from '../components/Toast'
 import type { PhotoCategory, ClassifiedPhoto } from '../types'
 
 const CATEGORY_ORDER: PhotoCategory[] = ['음식', '패션', '운동', '풍경', '일상', '미분류']
@@ -182,6 +183,7 @@ function DroppableCategory({
 
 export default function ClassifyResultPage() {
   const navigate = useNavigate()
+  const showToast = useToast()
   const classifiedPhotos = useUploadStore((s) => s.classifiedPhotos)
   const saveToCalendar = useUploadStore((s) => s.saveToCalendar)
   const isSaving = useUploadStore((s) => s.isSaving)
@@ -263,17 +265,21 @@ export default function ClassifyResultPage() {
   }
 
   const handleSave = async () => {
-    const changedPhotos = classifiedPhotos.filter(
-      (p) => photoCategories[p.photoId] !== p.category,
-    )
-    await Promise.all(
-      changedPhotos.map((p) => {
-        const categoryId = categoryIdMap[photoCategories[p.photoId]]
-        return categoryId ? updatePhotoCategory(p.photoId, categoryId) : Promise.resolve()
-      }),
-    )
-    await saveToCalendar()
-    navigate('/calendar')
+    try {
+      const changedPhotos = classifiedPhotos.filter(
+        (p) => photoCategories[p.photoId] !== p.category,
+      )
+      await Promise.all(
+        changedPhotos.map((p) => {
+          const categoryId = categoryIdMap[photoCategories[p.photoId]]
+          return categoryId ? updatePhotoCategory(p.photoId, categoryId) : Promise.resolve()
+        }),
+      )
+      await saveToCalendar()
+      navigate('/calendar')
+    } catch {
+      showToast('저장 중 오류가 발생했어요. 다시 시도해주세요.', 'error')
+    }
   }
 
   const activePhoto = activePhotoId
