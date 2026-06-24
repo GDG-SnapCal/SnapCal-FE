@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import AppBar from '../components/common/AppBar'
 import { getCalendar } from '../api/calendar'
@@ -242,13 +242,16 @@ export default function SharePage() {
     })
   }, [year, month, category])
 
-  const firstDay    = new Date(year, month - 1, 1).getDay()
-  const daysInMonth = new Date(year, month, 0).getDate()
-  const cells: (number | null)[] = [
-    ...Array(firstDay).fill(null),
-    ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
-  ]
-  while (cells.length % 7 !== 0) cells.push(null)
+  const cells = useMemo<(number | null)[]>(() => {
+    const firstDay    = new Date(year, month - 1, 1).getDay()
+    const daysInMonth = new Date(year, month, 0).getDate()
+    const result: (number | null)[] = [
+      ...Array(firstDay).fill(null),
+      ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
+    ]
+    while (result.length % 7 !== 0) result.push(null)
+    return result
+  }, [year, month])
 
   // 미리보기 canvas 그리기
   useEffect(() => {
@@ -261,7 +264,7 @@ export default function SharePage() {
       width: wrapW,
       height: previewH,
     })
-  }, [calendarData, selectedRatio])
+  }, [calendarData, selectedRatio, cells, month, year])
 
   // 저장
   const handleSave = async () => {

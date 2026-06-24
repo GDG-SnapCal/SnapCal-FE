@@ -23,7 +23,7 @@ export default function DuplicateSelectPage() {
 
   const handleSubmit = async () => {
     const payload = Object.entries(selections)
-      .filter(([_, id]) => id !== null)
+      .filter(([, id]) => id !== null)
       .map(([groupId, selectedPhotoId]) => ({ groupId, selectedPhotoId: selectedPhotoId! }))
     await submitDuplicates(payload)
     navigate('/upload/classify')

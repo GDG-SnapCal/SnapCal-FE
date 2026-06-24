@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { getDayPhotos, deletePhoto } from '../api/photos'
+import { useToast } from '../components/Toast'
 import type { PhotoCategory } from '../types'
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -35,7 +36,10 @@ interface DayPhoto {
 
 export default function DayDetailPage() {
   const navigate = useNavigate()
+  const showToast = useToast()
   const { date } = useParams<{ date: string }>()
+  const [searchParams] = useSearchParams()
+  const category = searchParams.get('category') ?? undefined
   const [photos, setPhotos] = useState<DayPhoto[]>([])
   const [selectedPhoto, setSelectedPhoto] = useState<DayPhoto | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -50,16 +54,15 @@ export default function DayDetailPage() {
 
   useEffect(() => {
     if (!date) return
-    setIsLoading(true)
-    getDayPhotos(date)
+    getDayPhotos(date, category)
       .then(({ data }) => {
         setPhotos(data)
         const rep = data.find((p: DayPhoto) => p.isRepresentative) ?? data[0]
         if (rep) setSelectedPhoto(rep)
       })
-      .catch(() => {})
+      .catch(() => { showToast('사진을 불러오는데 실패했어요.', 'error') })
       .finally(() => setIsLoading(false))
-  }, [date])
+  }, [date, category, showToast])
 
   const handleDelete = async () => {
     if (!selectedPhoto) return
@@ -74,6 +77,7 @@ export default function DayDetailPage() {
         setSelectedPhoto(remaining.find((p) => p.isRepresentative) ?? remaining[0])
       }
     } catch {
+      showToast('사진 삭제에 실패했어요. 다시 시도해주세요.', 'error')
     } finally {
       setIsDeleting(false)
       setShowDeleteConfirm(false)
@@ -181,19 +185,21 @@ export default function DayDetailPage() {
       {/* 하단 액션 바 */}
       <div className="mt-auto px-[20px] pb-10 pt-6">
         <div className="flex justify-around">
-          {/* 대표변경 */}
-          <button
-            type="button"
-            onClick={() => navigate(`/calendar/${fullDate}/representative`)}
-            className="flex flex-col items-center gap-[6px]"
-          >
-            <div className="flex size-[52px] items-center justify-center rounded-full bg-[#d8f0fa]">
-              <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-                <path d="M11 2L13.2 7.5L19 8.2L14.8 12.1L16 18L11 15.2L6 18L7.2 12.1L3 8.2L8.8 7.5L11 2Z" fill="#7cb5d9" />
-              </svg>
-            </div>
-            <span className="text-[11px] font-medium text-[#2c2c2c]">대표변경</span>
-          </button>
+          {/* 대표변경 — 전체 카테고리에서만 노출 */}
+          {!category && (
+            <button
+              type="button"
+              onClick={() => navigate(`/calendar/${fullDate}/representative`)}
+              className="flex flex-col items-center gap-[6px]"
+            >
+              <div className="flex size-[52px] items-center justify-center rounded-full bg-[#d8f0fa]">
+                <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                  <path d="M11 2L13.2 7.5L19 8.2L14.8 12.1L16 18L11 15.2L6 18L7.2 12.1L3 8.2L8.8 7.5L11 2Z" fill="#7cb5d9" />
+                </svg>
+              </div>
+              <span className="text-[11px] font-medium text-[#2c2c2c]">대표변경</span>
+            </button>
+          )}
           
           <button
           type="button"

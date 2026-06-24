@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useCalendarStore } from '../stores/calendarStore'
 import type { PhotoCategory } from '../types'
@@ -43,17 +43,13 @@ export default function CalendarPage() {
   } = useCalendarStore()
 
   useEffect(() => {
-    fetchCalendar(currentYear, currentMonth)
+    fetchCalendar(currentYear, currentMonth, selectedCategory)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const firstDayOfMonth = new Date(currentYear, currentMonth - 1, 1).getDay()
   const daysInMonth = new Date(currentYear, currentMonth, 0).getDate()
   const totalCount = Object.values(calendarData).reduce((s, d) => s + d.count, 0)
-  const [selectedDay, setSelectedDay ] = useState<number | null >(null)
-  const [ overlayCategory, setOverlayCategory] = useState<PhotoCategory | 'all'>('all')
-
-
   const cells: (number | null)[] = [
     ...Array(firstDayOfMonth).fill(null),
     ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
@@ -193,14 +189,18 @@ export default function CalendarPage() {
               }
               const entry = getEntry(day)
               if (entry) {
-                const [fromColor, toColor] =
+                const [fromColor] =
                   CATEGORY_GRADIENT[entry.representativePhoto.category] ?? ['#e8e8e8', '#9e9e9e']
                 return (
                   <button
                     key={day}
                     type="button"
                     className="relative h-[100px] w-full overflow-hidden rounded-[14px]"
-                  onClick={() => navigate(`/calendar/${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`)}
+                  onClick={() => {
+                    const dateStr = `${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+                    const query = selectedCategory !== 'all' ? `?category=${selectedCategory}` : ''
+                    navigate(`/calendar/${dateStr}${query}`)
+                  }}
           
               >
                     <img
