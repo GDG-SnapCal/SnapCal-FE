@@ -570,11 +570,11 @@ export default function ImageEditPage() {
       {/* 업로드 바텀시트 */}
       {showUploadSheet && (
         <div
-          className="fixed inset-0 z-50 flex items-end bg-black/40"
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/40"
           onClick={() => setShowUploadSheet(false)}
         >
           <div
-            className="w-full rounded-t-[24px] bg-white px-5 pb-10 pt-6"
+            className="w-full max-w-[390px] rounded-t-[24px] bg-white px-[24px] pb-10 pt-6"
             onClick={e => e.stopPropagation()}
           >
             <h3 className="mb-1 text-[17px] font-black text-[#2c2c2c]">캘린더에 업로드할까요?</h3>
@@ -600,14 +600,14 @@ export default function ImageEditPage() {
               <button
                 type="button"
                 onClick={() => setShowUploadSheet(false)}
-                className="h-[50px] flex-1 rounded-[25px] border border-[#e0e0e0] text-[14px] font-bold text-[#b0b0b0]"
+                className="h-[54px] flex-1 rounded-[27px] border border-[#e0e0e0] text-[15px] font-bold text-[#9e9e9e]"
               >
                 취소
               </button>
               <button
                 type="button"
                 onClick={handleUpload}
-                className="h-[50px] flex-[2] rounded-[25px] bg-[#a8d8ea] text-[14px] font-bold text-[#2a4a57]"
+                className="h-[54px] flex-[2] rounded-[27px] bg-[#a8d8ea] text-[15px] font-bold text-[#2a4a57]"
               >
                 업로드
               </button>
