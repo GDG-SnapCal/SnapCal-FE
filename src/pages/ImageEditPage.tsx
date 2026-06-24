@@ -11,6 +11,7 @@ interface TextLayer {
   x: number
   y: number
   color: string
+  fontSize: number
   dragging: boolean
   offsetX: number
   offsetY: number
@@ -109,6 +110,19 @@ export default function ImageEditPage() {
 
   const imageUrl = photo?.originalUrl ?? photo?.thumbnailUrl ?? null
 
+  // 현재 선택된 텍스트의 색상 (선택된 게 있으면 그 색, 없으면 기본 selectedColor)
+  const activeTextColor = selectedColor
+
+  // ── 색상 변경: 선택된 텍스트가 있으면 그 텍스트 색상도 같이 변경 ──
+  const handleColorChange = (color: string) => {
+    setSelectedColor(color)
+    if (activeTextId !== null) {
+      setTextLayers(prev =>
+        prev.map(t => t.id === activeTextId ? { ...t, color } : t)
+      )
+    }
+  }
+
   // ── 텍스트 추가 버튼 ──
   const handleAddTextClick = () => {
     setEditingText('')
@@ -124,6 +138,7 @@ export default function ImageEditPage() {
       text: editingText.trim(),
       x: 10, y: 10,
       color: selectedColor,
+      fontSize: 20,
       dragging: false,
       offsetX: 0,
       offsetY: 0,
@@ -293,7 +308,7 @@ export default function ImageEditPage() {
                 left: `${t.x}%`,
                 top:  `${t.y}%`,
                 color: t.color,
-                fontSize: 20,
+                fontSize: t.fontSize,
                 fontWeight: 'bold',
                 textShadow: '0 1px 4px rgba(0,0,0,0.4)',
                 cursor: 'move',
@@ -377,25 +392,61 @@ export default function ImageEditPage() {
               </div>
             )}
 
-            {/* 색상 선택 */}
+            {/* 색상 선택 — 선택된 텍스트 있으면 그 텍스트 색상 기준으로 표시 */}
             <div>
-              <p className="mb-2 text-[12px] font-bold text-[#b0b0b0]">텍스트 색상</p>
+              <p className="mb-2 text-[12px] font-bold text-[#b0b0b0]">
+                텍스트 색상
+                {activeTextId !== null && (
+                  <span className="ml-1 font-normal text-[#a8d8ea]">· 선택된 텍스트에 적용</span>
+                )}
+              </p>
               <div className="flex gap-3">
                 {TEXT_COLORS.map(c => (
                   <button
                     key={c}
                     type="button"
-                    onClick={() => setSelectedColor(c)}
+                    onClick={() => handleColorChange(c)}
                     className="size-[28px] rounded-full transition-transform"
                     style={{
                       backgroundColor: c,
-                      border: selectedColor === c ? '2.5px solid #a8d8ea' : '1.5px solid #e0e0e0',
-                      transform: selectedColor === c ? 'scale(1.2)' : 'scale(1)',
+                      border: activeTextColor === c ? '2.5px solid #a8d8ea' : '1.5px solid #e0e0e0',
+                      transform: activeTextColor === c ? 'scale(1.2)' : 'scale(1)',
                     }}
                   />
                 ))}
               </div>
             </div>
+
+            {/* 텍스트 크기 — 선택된 텍스트가 있을 때만 표시 */}
+            {activeTextId !== null && (
+              <div>
+                <p className="mb-2 text-[12px] font-bold text-[#b0b0b0]">
+                  텍스트 크기
+                  <span className="ml-1 font-normal text-[#a8d8ea]">
+                    · {textLayers.find(t => t.id === activeTextId)?.fontSize ?? 20}px
+                  </span>
+                </p>
+                <div className="flex items-center gap-3">
+                  <span className="text-[11px] font-bold text-[#b0b0b0]">A</span>
+                  <input
+                    type="range"
+                    min={12}
+                    max={60}
+                    value={textLayers.find(t => t.id === activeTextId)?.fontSize ?? 20}
+                    onChange={e => {
+                      const size = Number(e.target.value)
+                      setTextLayers(prev =>
+                        prev.map(t => t.id === activeTextId ? { ...t, fontSize: size } : t)
+                      )
+                    }}
+                    // 슬라이더 조작 중 activeTextId가 사라지지 않도록 이벤트 전파 차단
+                    onClick={e => e.stopPropagation()}
+                    className="flex-1 accent-[#a8d8ea]"
+                  />
+                  <span className="text-[15px] font-bold text-[#b0b0b0]">A</span>
+                </div>
+              </div>
+            )}
           </div>
         ) : (
           /* 필터 탭 */
