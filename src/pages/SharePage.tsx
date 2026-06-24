@@ -56,8 +56,9 @@ export default function SharePage() {
     const cat = category === 'all' ? undefined : category
     getCalendar(year, month, cat).then(({ data }) => {
       const map = (data.days ?? []).reduce((acc, day) => {
-        if (day.photos.length > 0) {
-          acc[day.date] = { count: day.photos.length, representativePhoto: day.photos[0] }
+        const photos = cat ? day.photos.filter((p) => p.category === cat) : day.photos
+        if (photos.length > 0) {
+          acc[day.date] = { count: photos.length, representativePhoto: photos[0] }
         }
         return acc
       }, {} as Record<string, CalendarDateEntry>)
