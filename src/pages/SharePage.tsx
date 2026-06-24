@@ -211,6 +211,7 @@ export default function SharePage() {
   const [calendarData, setCalendarData] = useState<Record<string, CalendarDateEntry>>({})
   const [selectedRatio, setSelectedRatio] = useState<Ratio>('1:1')
   const [isSaving, setIsSaving]           = useState(false)
+  const [showSuccess, setShowSuccess]     = useState(false)
 
   // 1. 이미지 캐시 — 컴포넌트 생명주기 동안 유지
   const imageCacheRef = useRef<Map<string, HTMLImageElement>>(new Map())
@@ -312,6 +313,7 @@ export default function SharePage() {
       a.href = dataUrl
       a.download = `snapcal-${year}-${String(month).padStart(2, '0')}.jpg`
       a.click()
+      setShowSuccess(true)
     } finally {
       setIsSaving(false)
     }
@@ -383,6 +385,30 @@ export default function SharePage() {
           {isSaving ? '저장 중...' : '사진 저장'}
         </button>
       </div>
+
+      {/* 저장 성공 모달 */}
+      {showSuccess && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40">
+          <div className="w-full max-w-[390px] rounded-t-[24px] bg-white px-[24px] pb-10 pt-6">
+            <div className="mb-5 flex justify-center">
+              <div className="flex size-[64px] items-center justify-center rounded-full bg-[#d8f0fa]">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                  <path d="M6 16L13 23L26 9" stroke="#7cb5d9" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </div>
+            </div>
+            <p className="text-center text-[18px] font-black text-[#2c2c2c]">저장 완료!</p>
+            <p className="mt-1 text-center text-[13px] text-[#9e9e9e]">캘린더 이미지가 갤러리에 저장되었어요</p>
+            <button
+              type="button"
+              onClick={() => navigate('/calendar')}
+              className="mt-6 h-[54px] w-full rounded-[27px] bg-[#a8d8ea] text-[15px] font-bold text-[#2a4a57]"
+            >
+              확인
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
