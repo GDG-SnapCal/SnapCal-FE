@@ -35,6 +35,7 @@ export default function RepresentativeSelectPage() {
   const [showConfirm, setShowConfirm] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [showSuccess, setShowSuccess] = useState(false)
 
   const dateObj = date ? new Date(date) : new Date()
   const month = dateObj.getMonth() + 1
@@ -60,8 +61,8 @@ export default function RepresentativeSelectPage() {
     try {
       setIsSaving(true)
       await setRepresentativePhoto(selectedPhoto.photoId, category)
-      showToast('대표 사진이 변경되었어요.', 'success')
-      navigate('/calendar')
+      setShowConfirm(false)
+      setShowSuccess(true)
     } catch {
       showToast('대표 사진 변경에 실패했어요. 다시 시도해주세요.', 'error')
     } finally {
@@ -334,6 +335,30 @@ export default function RepresentativeSelectPage() {
                 {isSaving ? '변경 중...' : '변경하기'}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* 변경 성공 모달 */}
+      {showSuccess && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40">
+          <div className="w-full max-w-[390px] rounded-t-[24px] bg-white px-[24px] pb-10 pt-6">
+            <div className="mb-5 flex justify-center">
+              <div className="flex size-[64px] items-center justify-center rounded-full bg-[#d8f0fa]">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                  <path d="M6 16L13 23L26 9" stroke="#7cb5d9" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </div>
+            </div>
+            <p className="text-center text-[18px] font-black text-[#2c2c2c]">대표 사진 변경 완료!</p>
+            <p className="mt-1 text-center text-[13px] text-[#9e9e9e]">캘린더에 새 대표 사진이 반영됐어요</p>
+            <button
+              type="button"
+              onClick={() => navigate('/calendar')}
+              className="mt-6 h-[54px] w-full rounded-[27px] bg-[#a8d8ea] text-[15px] font-bold text-[#2a4a57]"
+            >
+              확인
+            </button>
           </div>
         </div>
       )}
