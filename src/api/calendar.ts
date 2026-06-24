@@ -11,6 +11,8 @@ interface CalendarPhoto {
 interface CalendarDay {
   date: string
   photos: CalendarPhoto[]
+  representativePhoto?: CalendarPhoto
+  categoryRepresentatives?: Record<string, { photoId: string; thumbnailUrl: string }>
 }
 
 export interface CalendarResponse {
