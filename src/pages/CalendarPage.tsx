@@ -4,6 +4,7 @@ import { useCalendarStore } from '../stores/calendarStore'
 import type { PhotoCategory } from '../types'
 import { useAuthStore } from '../stores/authStore'
 import EmptyCategoryCard from '../components/EmptyCategoryCard'
+import logoImg from '../assets/logo.png'
 
 const CATEGORY_GRADIENT: Record<string, [string, string]> = {
   음식: ['#fae4d4', '#b07f5e'],
@@ -68,24 +69,10 @@ export default function CalendarPage() {
   return (
     <div className="flex min-h-svh flex-col bg-white px-[30px] pt-0">
       {/* App Header */}
-      <div className="flex items-center  pt-[52px]">
-        <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
-          <path
-            d="M21 14C21 10.13 17.87 7 14 7H12C8.13 7 5 10.13 5 14C5 17.87 8.13 21 12 21H14C17.87 21 21 17.87 21 14Z"
-            fill="#a8d8ea"
-          />
-          <path
-            d="M10 9C10 7.9 10.9 7 12 7H14C17.87 7 21 10.13 21 14C21 15.11 20.72 16.15 20.23 17H10V9Z"
-            fill="#7cb5d9"
-            opacity="0.5"
-          />
-          <circle cx="9" cy="10" r="4" fill="#d8f0fa" />
-          <circle cx="7" cy="12" r="3" fill="#d8f0fa" />
-        </svg>
-        <span className="ml-2 text-[17px] font-black tracking-[-0.255px] text-[#2c2c2c]">
-          Snap Cal
-        </span>
-      </div>
+        
+        <div className="flex items-center pt-[52px]">
+  <img src={logoImg} alt="Snap Cal" className="h-[28px] object-contain" />
+</div>
 
       {/* Month navigation */}
       <div className="flex items-center pt-3">
