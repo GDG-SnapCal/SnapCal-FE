@@ -37,6 +37,7 @@ const RATIO_EXPORT: Record<Ratio, { w: number; h: number }> = {
 }
 
 // ── Canvas에 캘린더 그리기 ────────────────────────────────────
+// imageCache를 외부에서 전달받아 캐시에 없는 이미지만 로드
 async function drawCalendar(
   canvas: HTMLCanvasElement,
   params: {
@@ -46,29 +47,27 @@ async function drawCalendar(
     calendarData: Record<string, CalendarDateEntry>
     width: number
     height: number
+    imageCache: Map<string, HTMLImageElement>
   }
 ) {
-  const { year, month, cells, calendarData, width, height } = params
+  const { year, month, cells, calendarData, width, height, imageCache } = params
   const ctx = canvas.getContext('2d')!
   canvas.width  = width
   canvas.height = height
 
-  const s = width / 1080  // 스케일 기준
+  const s = width / 1080
 
   const PAD   = 48 * s
   const innerW = width - PAD * 2
 
-  // ── 배경 ──
   ctx.fillStyle = '#ffffff'
   ctx.fillRect(0, 0, width, height)
 
-  // ── 헤더 텍스트 ──
   const headerY = 52 * s
   ctx.fillStyle = '#2c2c2c'
   ctx.font = `900 ${28 * s}px -apple-system, sans-serif`
   ctx.fillText(`${year}년 ${month}월`, PAD + 22 * s, headerY)
 
-  // ── 요일 레이블 ──
   const dayLabelY = headerY + 44 * s
   const colW = innerW / 7
   ctx.font = `700 ${18 * s}px -apple-system, sans-serif`
@@ -78,7 +77,6 @@ async function drawCalendar(
     ctx.fillText(d, PAD + colW * i + colW / 2, dayLabelY)
   })
 
-  // ── 날짜 그리드 ──
   const gridTop  = dayLabelY + 20 * s
   const gridH    = height - gridTop - PAD
   const rows     = cells.length / 7
@@ -86,15 +84,14 @@ async function drawCalendar(
   const cellGap  = 6 * s
   const radius   = 14 * s
 
-  // 썸네일 이미지 미리 로드
-  const imageCache = new Map<string, HTMLImageElement>()
+  // 캐시에 없는 URL만 로드
   const imageKeys = cells
     .filter((day): day is number => day !== null)
     .map(day => {
       const key = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
       return calendarData[key]?.representativePhoto?.thumbnailUrl
     })
-    .filter(Boolean) as string[]
+    .filter((url): url is string => Boolean(url) && !imageCache.has(url))
 
   await Promise.all(
     [...new Set(imageKeys)].map(url =>
@@ -108,7 +105,6 @@ async function drawCalendar(
     )
   )
 
-  // 셀 그리기
   cells.forEach((day, idx) => {
     const col = idx % 7
     const row = Math.floor(idx / 7)
@@ -122,7 +118,6 @@ async function drawCalendar(
     const dateKey = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
     const entry   = calendarData[dateKey]
 
-    // 셀 배경
     ctx.save()
     roundRect(ctx, x, y, w, h, radius)
     ctx.fillStyle = entry
@@ -131,11 +126,9 @@ async function drawCalendar(
     ctx.fill()
 
     if (entry) {
-      // 썸네일 이미지
       const img = imageCache.get(entry.representativePhoto.thumbnailUrl)
       if (img) {
         ctx.clip()
-        // object-cover: 비율 유지하며 셀 채우기
         const imgRatio = img.naturalWidth / img.naturalHeight
         const cellRatio = w / h
         let sx = 0, sy = 0, sw = img.naturalWidth, sh = img.naturalHeight
@@ -149,14 +142,12 @@ async function drawCalendar(
         ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h)
       }
 
-      // 상단 그라디언트 오버레이
       const grad = ctx.createLinearGradient(x, y, x, y + h * 0.45)
       grad.addColorStop(0, 'rgba(0,0,0,0.28)')
       grad.addColorStop(1, 'rgba(0,0,0,0)')
       ctx.fillStyle = grad
       ctx.fillRect(x, y, w, h)
 
-      // 날짜 숫자
       ctx.fillStyle = 'white'
       ctx.font = `700 ${16 * s}px -apple-system, sans-serif`
       ctx.textAlign = 'left'
@@ -165,14 +156,12 @@ async function drawCalendar(
       ctx.fillText(String(day), x + 6 * s, y + 18 * s)
       ctx.shadowBlur = 0
 
-      // 카테고리 점
       const dotColor = CATEGORY_GRADIENT[entry.representativePhoto.category] ?? '#e8e8e8'
       ctx.beginPath()
       ctx.arc(x + w - 8 * s, y + h - 8 * s, 5 * s, 0, Math.PI * 2)
       ctx.fillStyle = dotColor
       ctx.fill()
     } else {
-      // 빈 날 — 점선 테두리
       ctx.restore()
       ctx.save()
       roundRect(ctx, x, y, w, h, radius)
@@ -183,7 +172,6 @@ async function drawCalendar(
       ctx.strokeRect(x + 1, y + 1, w - 2, h - 2)
       ctx.setLineDash([])
 
-      // 날짜 숫자
       ctx.fillStyle = '#b0c8d8'
       ctx.font = `500 ${16 * s}px -apple-system, sans-serif`
       ctx.textAlign = 'left'
@@ -194,7 +182,6 @@ async function drawCalendar(
   })
 }
 
-// ── 둥근 사각형 path 헬퍼 ──
 function roundRect(
   ctx: CanvasRenderingContext2D,
   x: number, y: number, w: number, h: number, r: number
@@ -225,6 +212,11 @@ export default function SharePage() {
   const [selectedRatio, setSelectedRatio] = useState<Ratio>('1:1')
   const [isSaving, setIsSaving]           = useState(false)
 
+  // 1. 이미지 캐시 — 컴포넌트 생명주기 동안 유지
+  const imageCacheRef = useRef<Map<string, HTMLImageElement>>(new Map())
+  // 이미지 로드 완료 수 — 변경 시 캔버스 재드로우 트리거
+  const [loadedCount, setLoadedCount] = useState(0)
+
   const previewCanvasRef = useRef<HTMLCanvasElement>(null)
   const previewWrapRef   = useRef<HTMLDivElement>(null)
 
@@ -248,6 +240,30 @@ export default function SharePage() {
     })
   }, [year, month, category])
 
+  // 2. calendarData 변경 시 이미지 프리로드 — 캔버스 그리기 전에 미리 받아둠
+  useEffect(() => {
+    const urls = [
+      ...new Set(
+        Object.values(calendarData)
+          .map(e => e.representativePhoto?.thumbnailUrl)
+          .filter((u): u is string => Boolean(u))
+      ),
+    ]
+    let mounted = true
+    for (const url of urls) {
+      if (imageCacheRef.current.has(url)) continue
+      const img = new Image()
+      img.crossOrigin = 'anonymous'
+      img.onload = () => {
+        imageCacheRef.current.set(url, img)
+        if (mounted) setLoadedCount(c => c + 1)
+      }
+      img.onerror = () => { if (mounted) setLoadedCount(c => c + 1) }
+      img.src = url
+    }
+    return () => { mounted = false }
+  }, [calendarData])
+
   const cells = useMemo<(number | null)[]>(() => {
     const firstDay    = new Date(year, month - 1, 1).getDay()
     const daysInMonth = new Date(year, month, 0).getDate()
@@ -259,20 +275,27 @@ export default function SharePage() {
     return result
   }, [year, month])
 
-  // 미리보기 canvas 그리기
+  // 3. 미리보기 캔버스 — devicePixelRatio 적용(최대 2x)으로 선명하게, 캐시 전달
   useEffect(() => {
     if (!previewCanvasRef.current || !previewWrapRef.current) return
-    const wrapW = previewWrapRef.current.offsetWidth
+    const dpr   = Math.min(window.devicePixelRatio ?? 1, 2)
+    const cssW  = previewWrapRef.current.offsetWidth
     const [rW, rH] = RATIO_ASPECT[selectedRatio]
-    const previewH = Math.round(wrapW * rH / rW)
-    drawCalendar(previewCanvasRef.current, {
-      year, month, cells, calendarData,
-      width: wrapW,
-      height: previewH,
-    })
-  }, [calendarData, selectedRatio, cells, month, year])
+    const cssH  = Math.round(cssW * rH / rW)
 
-  // 저장
+    const canvas = previewCanvasRef.current
+    canvas.style.width  = `${cssW}px`
+    canvas.style.height = `${cssH}px`
+
+    drawCalendar(canvas, {
+      year, month, cells, calendarData,
+      width:  Math.round(cssW * dpr),
+      height: Math.round(cssH * dpr),
+      imageCache: imageCacheRef.current,
+    })
+  }, [calendarData, selectedRatio, cells, month, year, loadedCount])
+
+  // 저장 — 캐시 재사용으로 이미지 재다운로드 없음
   const handleSave = async () => {
     setIsSaving(true)
     try {
@@ -282,6 +305,7 @@ export default function SharePage() {
         year, month, cells, calendarData,
         width: w,
         height: h,
+        imageCache: imageCacheRef.current,
       })
       const dataUrl = exportCanvas.toDataURL('image/jpeg', 0.95)
       const a = document.createElement('a')
