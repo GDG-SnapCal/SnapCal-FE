@@ -92,31 +92,6 @@ export default function CalendarPage() {
         <span className="ml-2 text-[17px] font-black tracking-[-0.255px] text-[#2c2c2c]">
           Snap Cal
         </span>
-        <div className="ml-auto flex items-center gap-1.5">
-          <button type="button" className="flex size-[22px] items-center justify-center">
-            <svg width="18" height="20" viewBox="0 0 18 20" fill="none">
-              <path
-                d="M9 1C6.79 1 5 2.79 5 5V11L3 13V14H15V13L13 11V5C13 2.79 11.21 1 9 1Z"
-                fill="#c0c0c0"
-              />
-              <path
-                d="M7 15C7 16.1 7.9 17 9 17C10.1 17 11 16.1 11 15H7Z"
-                fill="#c0c0c0"
-              />
-              <circle cx="14" cy="4" r="3" fill="#e05c5c" />
-            </svg>
-          </button>
-          <button type="button" className="flex size-[22px] items-center justify-center">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-              <circle cx="10" cy="10" r="8" stroke="#c0c0c0" strokeWidth="1.6" />
-              <circle cx="10" cy="10" r="3" fill="#c0c0c0" />
-              <line x1="10" y1="2" x2="10" y2="4" stroke="#c0c0c0" strokeWidth="1.6" strokeLinecap="round" />
-              <line x1="10" y1="16" x2="10" y2="18" stroke="#c0c0c0" strokeWidth="1.6" strokeLinecap="round" />
-              <line x1="2" y1="10" x2="4" y2="10" stroke="#c0c0c0" strokeWidth="1.6" strokeLinecap="round" />
-              <line x1="16" y1="10" x2="18" y2="10" stroke="#c0c0c0" strokeWidth="1.6" strokeLinecap="round" />
-            </svg>
-          </button>
-        </div>
       </div>
 
       {/* Month navigation */}
