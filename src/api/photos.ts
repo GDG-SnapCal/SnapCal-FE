@@ -50,8 +50,8 @@ export const getDayPhotos = (date: string, category?: string) =>
 export const getPhotoDetail = (photoId: string) =>
   api.get(`/photos/${photoId}`)
 
-export const setRepresentativePhoto = (photoId: string) =>
-  api.patch(`/photos/${photoId}/representative`)
+export const setRepresentativePhoto = (photoId: string, category?: string) =>
+  api.patch(`/photos/${photoId}/representative`, category ? { category } : undefined)
 
 export const deletePhoto = (photoId: string) =>
   api.delete(`/photos/${photoId}`)

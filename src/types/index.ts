@@ -36,6 +36,7 @@ export interface CalendarDateEntry {
     category: string
     categoryColor: string
   }
+  categoryRepresentatives?: Record<string, { photoId: string; thumbnailUrl: string }>
 }
 
 export interface ApiError {

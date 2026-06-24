@@ -34,9 +34,13 @@ export const useCalendarStore = create<CalendarState>((set, get) => ({
         (acc, day) => {
           const photos = cat ? day.photos.filter((p) => p.category === cat) : day.photos
           if (photos.length > 0) {
+            const catRep = cat && day.categoryRepresentatives?.[cat]
             acc[day.date] = {
               count: photos.length,
-              representativePhoto: photos[0],
+              representativePhoto: catRep
+                ? { ...photos[0], ...catRep }
+                : (day.representativePhoto ?? photos[0]),
+              categoryRepresentatives: day.categoryRepresentatives,
             }
           }
           return acc

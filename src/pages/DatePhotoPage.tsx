@@ -185,21 +185,19 @@ export default function DayDetailPage() {
       {/* 하단 액션 바 */}
       <div className="mt-auto px-[20px] pb-10 pt-6">
         <div className="flex justify-around">
-          {/* 대표변경 — 전체 카테고리에서만 노출 */}
-          {!category && (
-            <button
-              type="button"
-              onClick={() => navigate(`/calendar/${fullDate}/representative`)}
-              className="flex flex-col items-center gap-[6px]"
-            >
-              <div className="flex size-[52px] items-center justify-center rounded-full bg-[#d8f0fa]">
-                <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-                  <path d="M11 2L13.2 7.5L19 8.2L14.8 12.1L16 18L11 15.2L6 18L7.2 12.1L3 8.2L8.8 7.5L11 2Z" fill="#7cb5d9" />
-                </svg>
-              </div>
-              <span className="text-[11px] font-medium text-[#2c2c2c]">대표변경</span>
-            </button>
-          )}
+          {/* 대표변경 */}
+          <button
+            type="button"
+            onClick={() => navigate(`/calendar/${fullDate}/representative${category ? `?category=${category}` : ''}`)}
+            className="flex flex-col items-center gap-[6px]"
+          >
+            <div className="flex size-[52px] items-center justify-center rounded-full bg-[#d8f0fa]">
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                <path d="M11 2L13.2 7.5L19 8.2L14.8 12.1L16 18L11 15.2L6 18L7.2 12.1L3 8.2L8.8 7.5L11 2Z" fill="#7cb5d9" />
+              </svg>
+            </div>
+            <span className="text-[11px] font-medium text-[#2c2c2c]">대표변경</span>
+          </button>
           
           <button
           type="button"

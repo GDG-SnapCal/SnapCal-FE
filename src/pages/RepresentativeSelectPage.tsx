@@ -59,7 +59,7 @@ export default function RepresentativeSelectPage() {
     if (!date || !selectedPhoto) return
     try {
       setIsSaving(true)
-      await setRepresentativePhoto(selectedPhoto.photoId)
+      await setRepresentativePhoto(selectedPhoto.photoId, category)
       showToast('대표 사진이 변경되었어요.', 'success')
       navigate('/calendar')
     } catch {
