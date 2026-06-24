@@ -151,10 +151,6 @@ export default function SignupPage() {
           />
         </div>
 
-        <div className="mt-3">
-          <Button label="소셜 계정으로 가입" variant="outline" />
-        </div>
-
         <div className="mt-auto pb-10 text-center">
           <p className="text-[12px] text-[#9e9e9e]">
             이미 계정이 있으신가요?&nbsp;&nbsp;

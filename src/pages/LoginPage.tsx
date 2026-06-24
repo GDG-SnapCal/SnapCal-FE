@@ -82,10 +82,6 @@ export default function LoginPage() {
           />
         </div>
 
-        <div className="mt-3">
-          <Button label="소셜 계정으로 로그인" variant="outline" />
-        </div>
-
         <div className="mt-auto pb-10 text-center">
           <p className="text-[12px] text-[#9e9e9e]">
             비밀번호 찾기&nbsp;&nbsp;·&nbsp;&nbsp;
