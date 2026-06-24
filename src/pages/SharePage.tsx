@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import html2canvas from 'html2canvas'
+import { toJpeg } from 'html-to-image'
 import AppBar from '../components/common/AppBar'
 import { getCalendar } from '../api/calendar'
 import type { CalendarDateEntry, PhotoCategory } from '../types'
@@ -87,38 +87,22 @@ export default function SharePage() {
     try {
       const { width, height } = RATIO_EXPORT_SIZE[selectedRatio]
 
-      const canvas = await html2canvas(cardRef.current, {
-        useCORS: true,         // 외부 이미지(thumbnailUrl) CORS 허용
-        allowTaint: false,
-        scale: width / cardRef.current.offsetWidth,  // 고해상도 스케일
-        width:  cardRef.current.offsetWidth,
-        height: cardRef.current.offsetHeight,
-        windowWidth:  cardRef.current.offsetWidth,
-        windowHeight: cardRef.current.offsetHeight,
+      const dataUrl = await toJpeg(cardRef.current, {
+        quality: 0.95,
+        width,
+        height,
+        canvasWidth: width,
+        canvasHeight: height,
+        skipAutoScale: false,
+        pixelRatio: width / cardRef.current.offsetWidth,
         backgroundColor: '#ffffff',
-        imageTimeout: 15000,
+        skipFonts: true,
       })
 
-      // 비율에 맞게 최종 리사이즈 (캡처된 canvas가 정확한 px이 아닐 수 있으므로)
-      const finalCanvas = document.createElement('canvas')
-      finalCanvas.width  = width
-      finalCanvas.height = height
-      const ctx = finalCanvas.getContext('2d')!
-      ctx.drawImage(canvas, 0, 0, width, height)
-
-      finalCanvas.toBlob(
-        (blob) => {
-          if (!blob) return
-          const url = URL.createObjectURL(blob)
-          const a   = document.createElement('a')
-          a.href     = url
-          a.download = `snapcal-${year}-${String(month).padStart(2, '0')}.jpg`
-          a.click()
-          URL.revokeObjectURL(url)
-        },
-        'image/jpeg',
-        0.95,  // 품질 95%
-      )
+      const a = document.createElement('a')
+      a.href = dataUrl
+      a.download = `snapcal-${year}-${String(month).padStart(2, '0')}.jpg`
+      a.click()
     } finally {
       setIsSaving(false)
     }

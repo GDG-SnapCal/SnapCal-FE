@@ -12,11 +12,20 @@ const CATEGORY_COLORS: Record<string, string> = {
   미분류: '#E8E8E8',
 }
 
+const CATEGORY_EMOJI: Record<string, string> = {
+  음식: '🍽️',
+  패션: '👗',
+  운동: '🏃',
+  풍경: '🏔️',
+  일상: '☀️',
+  미분류: '📁',
+}
+
 const DAY_KO = ['일', '월', '화', '수', '목', '금', '토']
 
 interface DayPhoto {
   photoId: string
-  url: string
+  originalUrl: string
   thumbnailUrl: string
   category: PhotoCategory
   title?: string
@@ -91,24 +100,19 @@ export default function DayDetailPage() {
       {selectedPhoto && (
         <div className="relative mx-[20px] mt-4 overflow-hidden rounded-[20px]">
           <img
-            src={selectedPhoto.url}
+            src={selectedPhoto.originalUrl}
             alt=""
             className="h-[320px] w-full object-cover"
             style={{ backgroundColor: CATEGORY_COLORS[selectedPhoto.category] }}
           />
-          {/* 대표사진 배지 */}
-          <div className="absolute left-[12px] top-[12px] flex items-center gap-1 rounded-full bg-black/40 px-3 py-1">
-            <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-              <path d="M5 1L6.2 3.8L9 4.2L7 6.1L7.5 9L5 7.6L2.5 9L3 6.1L1 4.2L3.8 3.8L5 1Z" fill="white" />
-            </svg>
-            <span className="text-[11px] font-bold text-white">대표 사진</span>
-          </div>
           {/* 카테고리 배지 */}
           <div
             className="absolute right-[12px] top-[12px] flex items-center gap-1 rounded-full px-3 py-1"
             style={{ backgroundColor: CATEGORY_COLORS[selectedPhoto.category] }}
           >
-            <span className="text-[11px] font-bold text-white">🍽 {selectedPhoto.category}</span>
+            <span className="text-[11px] font-bold text-white">
+              {CATEGORY_EMOJI[selectedPhoto.category] ?? '📷'} {selectedPhoto.category}
+            </span>
           </div>
           {/* 하단 그라디언트 + 정보 */}
           <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent px-[16px] pb-[16px] pt-[40px]">

@@ -39,7 +39,7 @@ export default function ShareSelectPage() {
   return (
     <div className="flex min-h-svh flex-col bg-white">
       <div className="pt-[44px]">
-        <AppBar title="캘린더 내보내기" />
+        <AppBar title="캘린더 내보내기" onBack={() => navigate('/calendar')} />
       </div>
 
       <div className="flex flex-1 flex-col px-5 pt-6">

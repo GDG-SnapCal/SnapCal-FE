@@ -14,7 +14,7 @@ const CATEGORY_COLORS: Record<string, string> = {
 
 interface DayPhoto {
   photoId: string
-  url: string
+  originalUrl: string
   thumbnailUrl: string
   category: PhotoCategory
   title?: string
@@ -116,7 +116,7 @@ export default function RepresentativeSelectPage() {
             {currentRep && (
               <div className="relative mt-4 overflow-hidden rounded-[16px]">
                 <img
-                  src={currentRep.url}
+                  src={currentRep.originalUrl}
                   alt=""
                   className="h-[320px] w-full object-cover"
                   style={{ backgroundColor: CATEGORY_COLORS[currentRep.category] }}
@@ -198,7 +198,7 @@ export default function RepresentativeSelectPage() {
                     className="relative aspect-square overflow-hidden rounded-[16px]"
                   >
                     <img
-                      src={photo.url}
+                      src={photo.originalUrl}
                       alt=""
                       className="size-full object-cover"
                       style={{ backgroundColor: CATEGORY_COLORS[photo.category] }}
