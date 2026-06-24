@@ -50,7 +50,7 @@ export default function UploadSelectPage() {
 
   return (
     
-    <div className=" relatvie flex min-h-svh flex-col bg-white">
+    <div className="relative flex min-h-svh flex-col bg-white">
 
       {isUploading && (
   <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/70">
