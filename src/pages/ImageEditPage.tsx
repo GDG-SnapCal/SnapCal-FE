@@ -95,6 +95,8 @@ export default function ImageEditPage() {
   const [activeTextId,   setActiveTextId]   = useState<number | null>(null)
   const [editingText,    setEditingText]    = useState<string>('')
   const [isTyping,       setIsTyping]       = useState(false)
+  // null = 새 텍스트 추가 중, number = 기존 텍스트 편집 중
+  const [editingId,      setEditingId]      = useState<number | null>(null)
   const [selectedColor,  setSelectedColor]  = useState('#ffffff')
   const [selectedFilter, setSelectedFilter] = useState<FilterKey>('원본')
   const [isSaving,       setIsSaving]       = useState(false)
@@ -126,24 +128,48 @@ export default function ImageEditPage() {
   // ── 텍스트 추가 버튼 ──
   const handleAddTextClick = () => {
     setEditingText('')
+    setEditingId(null)
+    setIsTyping(true)
+    setTimeout(() => inputRef.current?.focus(), 100)
+  }
+
+  // ── 기존 텍스트 클릭 시 편집 모드 진입 ──
+  const handleTextEdit = (t: TextLayer) => {
+    setActiveTextId(t.id)
+    setEditingId(t.id)
+    setEditingText(t.text)
+    setSelectedColor(t.color)
     setIsTyping(true)
     setTimeout(() => inputRef.current?.focus(), 100)
   }
 
   // ── 텍스트 확인 ──
   const handleTextConfirm = () => {
-    if (!editingText.trim()) { setIsTyping(false); return }
-    setTextLayers(prev => [...prev, {
-      id: nextId.current++,
-      text: editingText.trim(),
-      x: 10, y: 10,
-      color: selectedColor,
-      fontSize: 20,
-      dragging: false,
-      offsetX: 0,
-      offsetY: 0,
-    }])
+    if (!editingText.trim()) {
+      setIsTyping(false)
+      setEditingId(null)
+      return
+    }
+    if (editingId !== null) {
+      // 기존 텍스트 수정
+      setTextLayers(prev =>
+        prev.map(t => t.id === editingId ? { ...t, text: editingText.trim(), color: selectedColor } : t)
+      )
+    } else {
+      // 새 텍스트 추가
+      setTextLayers(prev => [...prev, {
+        id: nextId.current++,
+        text: editingText.trim(),
+        x: 10, y: 10,
+        color: selectedColor,
+        fontSize: 20,
+        dragging: false,
+        offsetX: 0,
+        offsetY: 0,
+      }])
+    }
     setEditingText('')
+    setEditingId(null)
     setIsTyping(false)
   }
 
@@ -320,10 +346,10 @@ export default function ImageEditPage() {
                 gap: 4,
               }}
               onPointerDown={e => startDrag(e, t.id)}
-              onClick={e => { e.stopPropagation(); setActiveTextId(t.id) }}
+              onClick={e => { e.stopPropagation(); handleTextEdit(t) }}
             >
               {t.text}
-              {activeTextId === t.id && (
+              {activeTextId === t.id && !isTyping && (
                 <button
                   type="button"
                   onPointerDown={e => e.stopPropagation()}
@@ -372,23 +398,34 @@ export default function ImageEditPage() {
                 + 텍스트 추가
               </button>
             ) : (
-              <div className="flex gap-2">
-                <input
-                  ref={inputRef}
-                  type="text"
-                  value={editingText}
-                  onChange={e => setEditingText(e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && handleTextConfirm()}
-                  placeholder="텍스트 입력"
-                  className="flex-1 rounded-[10px] border border-[#ddeef8] px-3 py-2 text-[13px] outline-none focus:border-[#a8d8ea]"
-                />
-                <button
-                  type="button"
-                  onClick={handleTextConfirm}
-                  className="rounded-[10px] bg-[#a8d8ea] px-4 text-[13px] font-bold text-[#2a4a57]"
-                >
-                  확인
-                </button>
+              <div className="flex flex-col gap-2">
+                <div className="flex gap-2">
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    value={editingText}
+                    onChange={e => setEditingText(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && handleTextConfirm()}
+                    placeholder={editingId !== null ? '텍스트 수정' : '텍스트 입력'}
+                    className="flex-1 rounded-[10px] border border-[#ddeef8] px-3 py-2 text-[13px] outline-none focus:border-[#a8d8ea]"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleTextConfirm}
+                    className="rounded-[10px] bg-[#a8d8ea] px-4 text-[13px] font-bold text-[#2a4a57]"
+                  >
+                    확인
+                  </button>
+                </div>
+                {editingId !== null && (
+                  <button
+                    type="button"
+                    onClick={() => { deleteText(editingId); setIsTyping(false); setEditingId(null) }}
+                    className="text-left text-[12px] text-[#e89baa]"
+                  >
+                    텍스트 삭제
+                  </button>
+                )}
               </div>
             )}
 
