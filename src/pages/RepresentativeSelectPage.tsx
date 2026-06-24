@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { getDayPhotos, setRepresentativePhoto } from '../api/photos'
+import { useToast } from '../components/Toast'
 import type { PhotoCategory } from '../types'
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -24,7 +25,10 @@ interface DayPhoto {
 
 export default function RepresentativeSelectPage() {
   const navigate = useNavigate()
+  const showToast = useToast()
   const { date } = useParams<{ date: string }>()
+  const [searchParams] = useSearchParams()
+  const category = searchParams.get('category') ?? undefined
   const [photos, setPhotos] = useState<DayPhoto[]>([])
   const [currentRep, setCurrentRep] = useState<DayPhoto | null>(null)
   const [selectedPhoto, setSelectedPhoto] = useState<DayPhoto | null>(null)
@@ -38,8 +42,7 @@ export default function RepresentativeSelectPage() {
 
   useEffect(() => {
     if (!date) return
-    setIsLoading(true)
-    getDayPhotos(date)
+    getDayPhotos(date, category)
       .then(({ data }) => {
         setPhotos(data)
         const rep = data.find((p: DayPhoto) => p.isRepresentative) ?? data[0]
@@ -48,17 +51,19 @@ export default function RepresentativeSelectPage() {
           setSelectedPhoto(null)
         }
       })
-      .catch(() => {})
+      .catch(() => { showToast('사진을 불러오는데 실패했어요.', 'error') })
       .finally(() => setIsLoading(false))
-  }, [date])
+  }, [date, category, showToast])
 
   const handleConfirm = async () => {
     if (!date || !selectedPhoto) return
     try {
       setIsSaving(true)
       await setRepresentativePhoto(selectedPhoto.photoId)
-      navigate(-1)
+      showToast('대표 사진이 변경되었어요.', 'success')
+      navigate('/calendar')
     } catch {
+      showToast('대표 사진 변경에 실패했어요. 다시 시도해주세요.', 'error')
     } finally {
       setIsSaving(false)
     }
@@ -218,12 +223,6 @@ export default function RepresentativeSelectPage() {
                         </div>
                       </>
                     )}
-                    {/* 시간 표시 */}
-                    <div className="absolute bottom-[8px] left-[8px] rounded-[4px] bg-black/40 px-2 py-0.5">
-                      <span className="text-[10px] text-white">
-                        {new Date(photo.takenAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}
-                      </span>
-                    </div>
                   </button>
                 )
               })}

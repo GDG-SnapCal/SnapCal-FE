@@ -16,7 +16,7 @@ interface Props {
   onViewAll?: () => void
 }
 
-export default function EmptyCategoryCard({ category, onViewAll }: Props) {
+export default function EmptyCategoryCard({ category }: Props) {
   const navigate = useNavigate()
   const { emoji, label } = CATEGORY_META[category]
   const isAll = category === 'all'

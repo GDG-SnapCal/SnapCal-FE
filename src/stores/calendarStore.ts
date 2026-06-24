@@ -56,38 +56,36 @@ export const useCalendarStore = create<CalendarState>((set, get) => ({
   },
 
   goToPrevMonth: () => {
-    const { currentYear, currentMonth, fetchCalendar } = get()
+    const { currentYear, currentMonth, selectedCategory, fetchCalendar } = get()
     const prev =
       currentMonth === 1
         ? { year: currentYear - 1, month: 12 }
         : { year: currentYear, month: currentMonth - 1 }
     set({ currentYear: prev.year, currentMonth: prev.month })
-    fetchCalendar(prev.year, prev.month)
+    fetchCalendar(prev.year, prev.month, selectedCategory)
   },
 
   goToNextMonth: () => {
-    const { currentYear, currentMonth, fetchCalendar } = get()
+    const { currentYear, currentMonth, selectedCategory, fetchCalendar } = get()
     const next =
       currentMonth === 12
         ? { year: currentYear + 1, month: 1 }
         : { year: currentYear, month: currentMonth + 1 }
     set({ currentYear: next.year, currentMonth: next.month })
-    fetchCalendar(next.year, next.month)
+    fetchCalendar(next.year, next.month, selectedCategory)
   },
 
   goToNextYear: () => {
-    const { currentYear, currentMonth, fetchCalendar } = get()
-     const next = { year: currentYear + 1, month: currentMonth }
+    const { currentYear, currentMonth, selectedCategory, fetchCalendar } = get()
+    const next = { year: currentYear + 1, month: currentMonth }
     set({ currentYear: next.year, currentMonth: next.month })
-    fetchCalendar(next.year, next.month)
-    
+    fetchCalendar(next.year, next.month, selectedCategory)
   },
 
   goToPrevYear: () => {
-     const { currentYear, currentMonth, fetchCalendar } = get()
-     const prev = { year: currentYear -1 , month: currentMonth }
+    const { currentYear, currentMonth, selectedCategory, fetchCalendar } = get()
+    const prev = { year: currentYear - 1, month: currentMonth }
     set({ currentYear: prev.year, currentMonth: prev.month })
-    fetchCalendar(prev.year, prev.month)
-    
+    fetchCalendar(prev.year, prev.month, selectedCategory)
   },
 }))
