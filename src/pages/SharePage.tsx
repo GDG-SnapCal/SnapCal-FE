@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+import html2canvas from 'html2canvas'
 import AppBar from '../components/common/AppBar'
 import { getCalendar } from '../api/calendar'
-import { exportCalendar } from '../api/calendar'
 import type { CalendarDateEntry, PhotoCategory } from '../types'
 
 type Ratio = '1:1' | '4:5' | '9:16'
@@ -30,17 +30,27 @@ const CATEGORY_GRADIENT: Record<string, [string, string]> = {
 
 const DAY_LABELS = ['일', '월', '화', '수', '목', '금', '토']
 
+// 비율별 캡처 기준 너비 (px) — 고해상도 저장용
+const RATIO_EXPORT_SIZE: Record<Ratio, { width: number; height: number }> = {
+  '1:1':  { width: 1080, height: 1080 },
+  '4:5':  { width: 1080, height: 1350 },
+  '9:16': { width: 1080, height: 1920 },
+}
+
 export default function SharePage() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
 
-  const year  = Number(searchParams.get('year'))  || new Date().getFullYear()
-  const month = Number(searchParams.get('month')) || new Date().getMonth() + 1
+  const year     = Number(searchParams.get('year'))  || new Date().getFullYear()
+  const month    = Number(searchParams.get('month')) || new Date().getMonth() + 1
   const category = (searchParams.get('category') ?? 'all') as PhotoCategory | 'all'
 
   const [calendarData, setCalendarData] = useState<Record<string, CalendarDateEntry>>({})
   const [selectedRatio, setSelectedRatio] = useState<Ratio>('1:1')
   const [isSaving, setIsSaving] = useState(false)
+
+  // 캘린더 카드 ref
+  const cardRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const cat = category === 'all' ? undefined : category
@@ -55,7 +65,7 @@ export default function SharePage() {
     })
   }, [year, month, category])
 
-  const firstDay = new Date(year, month - 1, 1).getDay()
+  const firstDay    = new Date(year, month - 1, 1).getDay()
   const daysInMonth = new Date(year, month, 0).getDate()
   const cells: (number | null)[] = [
     ...Array(firstDay).fill(null),
@@ -71,13 +81,44 @@ export default function SharePage() {
   const [rW, rH] = RATIO_ASPECT[selectedRatio]
 
   const handleSave = async () => {
+    if (!cardRef.current) return
     setIsSaving(true)
+
     try {
-      const { data } = await exportCalendar(year, month, selectedRatio)
-      const a = document.createElement('a')
-      a.href = data.imageUrl
-      a.download = `snapcal-${year}-${String(month).padStart(2, '0')}.jpg`
-      a.click()
+      const { width, height } = RATIO_EXPORT_SIZE[selectedRatio]
+
+      const canvas = await html2canvas(cardRef.current, {
+        useCORS: true,         // 외부 이미지(thumbnailUrl) CORS 허용
+        allowTaint: false,
+        scale: width / cardRef.current.offsetWidth,  // 고해상도 스케일
+        width:  cardRef.current.offsetWidth,
+        height: cardRef.current.offsetHeight,
+        windowWidth:  cardRef.current.offsetWidth,
+        windowHeight: cardRef.current.offsetHeight,
+        backgroundColor: '#ffffff',
+        imageTimeout: 15000,
+      })
+
+      // 비율에 맞게 최종 리사이즈 (캡처된 canvas가 정확한 px이 아닐 수 있으므로)
+      const finalCanvas = document.createElement('canvas')
+      finalCanvas.width  = width
+      finalCanvas.height = height
+      const ctx = finalCanvas.getContext('2d')!
+      ctx.drawImage(canvas, 0, 0, width, height)
+
+      finalCanvas.toBlob(
+        (blob) => {
+          if (!blob) return
+          const url = URL.createObjectURL(blob)
+          const a   = document.createElement('a')
+          a.href     = url
+          a.download = `snapcal-${year}-${String(month).padStart(2, '0')}.jpg`
+          a.click()
+          URL.revokeObjectURL(url)
+        },
+        'image/jpeg',
+        0.95,  // 품질 95%
+      )
     } finally {
       setIsSaving(false)
     }
@@ -87,7 +128,6 @@ export default function SharePage() {
     <div className="flex min-h-svh flex-col bg-[#f7fbff]">
       <div className="bg-white pt-[44px]">
         <AppBar title="캘린더 내보내기" onBack={() => navigate('/share/select')} />
-        {/* Month + category info bar */}
         <div className="flex items-center gap-2 px-5 pb-3">
           <span className="text-[15px] font-black text-[#2c2c2c]">{year}년 {month}월</span>
           {category !== 'all' && (
@@ -98,9 +138,10 @@ export default function SharePage() {
         </div>
       </div>
 
-      {/* Calendar preview */}
+      {/* 캘린더 카드 — ref 연결 */}
       <div className="flex flex-1 flex-col items-center px-5 pt-5">
         <div
+          ref={cardRef}  
           className="w-full overflow-hidden rounded-[20px] bg-white shadow-[0_4px_24px_rgba(124,181,217,0.18)] transition-all duration-300"
           style={{ aspectRatio: `${rW} / ${rH}` }}
         >
@@ -135,7 +176,6 @@ export default function SharePage() {
             <div className="grid flex-1 grid-cols-7 gap-[3px]" style={{ gridAutoRows: '1fr' }}>
               {cells.map((day, idx) => {
                 if (day === null) return <div key={`e-${idx}`} />
-
                 const entry = getEntry(day)
                 if (entry) {
                   const [fromColor] =
@@ -150,6 +190,7 @@ export default function SharePage() {
                         src={entry.representativePhoto.thumbnailUrl}
                         alt=""
                         className="absolute inset-0 size-full object-cover"
+                        crossOrigin="anonymous"  
                       />
                       <div className="absolute inset-x-0 top-0 h-5 bg-gradient-to-b from-black/30 to-transparent" />
                       <span className="absolute left-[3px] top-[2px] text-[8px] font-bold text-white drop-shadow">
@@ -162,7 +203,7 @@ export default function SharePage() {
                     </div>
                   )
                 }
-
+                
                 return (
                   <div
                     key={day}
@@ -177,7 +218,7 @@ export default function SharePage() {
         </div>
       </div>
 
-      {/* Ratio selector */}
+         {/* Ratio selector */}
       <div className="px-5 pt-5">
         <p className="mb-3 text-[13px] font-bold text-[#2c2c2c]">비율 선택</p>
         <div className="flex gap-2">
