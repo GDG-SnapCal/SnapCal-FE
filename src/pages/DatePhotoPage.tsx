@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { getDayPhotos } from '../api/photos'
+import { getDayPhotos, deletePhoto } from '../api/photos'
 import type { PhotoCategory } from '../types'
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -39,6 +39,8 @@ export default function DayDetailPage() {
   const [photos, setPhotos] = useState<DayPhoto[]>([])
   const [selectedPhoto, setSelectedPhoto] = useState<DayPhoto | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   const dateObj = date ? new Date(date) : new Date()
   const month = dateObj.getMonth() + 1
@@ -58,6 +60,25 @@ export default function DayDetailPage() {
       .catch(() => {})
       .finally(() => setIsLoading(false))
   }, [date])
+
+  const handleDelete = async () => {
+    if (!selectedPhoto) return
+    setIsDeleting(true)
+    try {
+      await deletePhoto(selectedPhoto.photoId)
+      const remaining = photos.filter((p) => p.photoId !== selectedPhoto.photoId)
+      if (remaining.length === 0) {
+        navigate(-1)
+      } else {
+        setPhotos(remaining)
+        setSelectedPhoto(remaining.find((p) => p.isRepresentative) ?? remaining[0])
+      }
+    } catch {
+    } finally {
+      setIsDeleting(false)
+      setShowDeleteConfirm(false)
+    }
+  }
 
   if (isLoading) {
     return (
@@ -199,7 +220,12 @@ export default function DayDetailPage() {
          </button>
 
           {/* 삭제 */}
-          <button type="button" className="flex flex-col items-center gap-[6px]">
+          <button
+            type="button"
+            onClick={() => setShowDeleteConfirm(true)}
+            disabled={!selectedPhoto}
+            className="flex flex-col items-center gap-[6px] disabled:opacity-40"
+          >
             <div className="flex size-[52px] items-center justify-center rounded-full bg-[#fff0f0]">
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                 <path d="M4 6H16M8 6V4H12V6M7 6V15H13V6H7Z" stroke="#e05c5c" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -209,6 +235,36 @@ export default function DayDetailPage() {
           </button>
         </div>
       </div>
+
+      {/* 삭제 확인 바텀시트 */}
+      {showDeleteConfirm && selectedPhoto && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40">
+          <div className="w-full max-w-[390px] rounded-t-[24px] bg-white px-[24px] pb-10 pt-4">
+            <div className="mb-4 flex justify-center">
+              <div className="h-[4px] w-[40px] rounded-full bg-[#e0e0e0]" />
+            </div>
+            <p className="text-center text-[18px] font-black text-[#2c2c2c]">사진을 삭제할까요?</p>
+            <p className="mt-1 text-center text-[13px] text-[#9e9e9e]">삭제된 사진은 복구할 수 없어요</p>
+            <div className="mt-6 flex gap-3">
+              <button
+                type="button"
+                onClick={() => setShowDeleteConfirm(false)}
+                className="h-[54px] flex-1 rounded-[27px] border border-[#e0e0e0] text-[15px] font-bold text-[#9e9e9e]"
+              >
+                취소
+              </button>
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="h-[54px] flex-1 rounded-[27px] bg-[#e05c5c] text-[15px] font-bold text-white disabled:opacity-50"
+              >
+                {isDeleting ? '삭제 중...' : '삭제'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -53,6 +53,9 @@ export const getPhotoDetail = (photoId: string) =>
 export const setRepresentativePhoto = (photoId: string) =>
   api.patch(`/photos/${photoId}/representative`)
 
+export const deletePhoto = (photoId: string) =>
+  api.delete(`/photos/${photoId}`)
+
 export const updatePhotoImage = (photoId: string, blob: Blob) => {
   const formData = new FormData()
   formData.append('file', blob, 'edited.jpg')
