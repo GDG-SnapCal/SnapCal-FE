@@ -59,7 +59,7 @@ export const deletePhoto = (photoId: string) =>
 export const updatePhotoImage = (photoId: string, blob: Blob) => {
   const formData = new FormData()
   formData.append('file', blob, 'edited.jpg')
-  return api.patch<{ photoId: string; originalUrl: string; thumbnailUrl: string | null }>(
+  return uploadApi.patch<{ photoId: string; originalUrl: string; thumbnailUrl: string | null }>(
     `/photos/${photoId}/image`,
     formData,
   )
