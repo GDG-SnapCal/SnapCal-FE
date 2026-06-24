@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import html2canvas from 'html2canvas'
 import AppBar from '../components/common/AppBar'
-import {  getDayPhotos } from '../api/photos'
+import { getPhotoDetail } from '../api/photos'
 
 // ─── 타입 ─────────────────────────────────────────────────────
 interface TextLayer {
@@ -103,7 +103,7 @@ export default function ImageEditPage() {
 
   useEffect(() => {
     if (!photoId) return
-     getDayPhotos(photoId).then(({ data }) => setPhoto(data.data))
+    getPhotoDetail(photoId).then(({ data }) => setPhoto(data))
   }, [photoId])
 
   const imageUrl = photo?.url ?? photo?.thumbnailUrl ?? null

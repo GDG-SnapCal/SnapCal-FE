@@ -44,8 +44,11 @@ export const editPhoto = (
 ) => api.post<{ photoId: string; editedUrl: string }>(`/photos/${photoId}/edit`, options)
 
 
-export const getDayPhotos = (date: string, category? : string) => 
-  api.get(`/photos`, { params: {date, category}})
+export const getDayPhotos = (date: string, category?: string) =>
+  api.get(`/photos`, { params: { date, category } })
+
+export const getPhotoDetail = (photoId: string) =>
+  api.get(`/photos/${photoId}`)
 
 export const setRepresentativePhoto = (photoId: string) =>
   api.patch(`/photos/${photoId}/representative`)
