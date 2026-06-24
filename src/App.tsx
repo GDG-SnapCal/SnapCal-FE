@@ -25,7 +25,7 @@ export default function App() {
       <Route path="/upload/select" element={<UploadSelectPage />} />
       <Route path="/upload/duplicates" element={<DuplicateSelectPage />} />
       <Route path="/upload/classify" element={<ClassifyResultPage />} />
-      <Route path="/photo/:photoId/edit" element={<ImageEditPage />} />
+      <Route path="/photos/:photoId/edit" element={<ImageEditPage />} />
       <Route path ="/calendar/:date" element = {<DayPhotoPage/>}/>
       <Route path ="/calendar/:date/representative" element = {<RepresentativeSelectPage/>}/>
 
