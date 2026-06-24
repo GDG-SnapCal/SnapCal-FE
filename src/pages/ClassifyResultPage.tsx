@@ -15,7 +15,7 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import AppBar from '../components/common/AppBar'
 import { useUploadStore } from '../stores/uploadStore'
-import { updatePhotoCategory } from '../api/photos'
+import { updatePhotoCategory, deletePhoto } from '../api/photos'
 import { getCategories } from '../api/categories'
 import { useToast } from '../components/Toast'
 import type { PhotoCategory, ClassifiedPhoto } from '../types'
@@ -266,15 +266,17 @@ export default function ClassifyResultPage() {
 
   const handleSave = async () => {
     try {
-      const changedPhotos = classifiedPhotos.filter(
-        (p) => photoCategories[p.photoId] !== p.category,
+      const unselected = classifiedPhotos.filter((p) => !selected.has(p.photoId))
+      const changed = classifiedPhotos.filter(
+        (p) => selected.has(p.photoId) && photoCategories[p.photoId] !== p.category,
       )
-      await Promise.all(
-        changedPhotos.map((p) => {
+      await Promise.all([
+        ...unselected.map((p) => deletePhoto(p.photoId)),
+        ...changed.map((p) => {
           const categoryId = categoryIdMap[photoCategories[p.photoId]]
           return categoryId ? updatePhotoCategory(p.photoId, categoryId) : Promise.resolve()
         }),
-      )
+      ])
       await saveToCalendar()
       navigate('/calendar')
     } catch {
