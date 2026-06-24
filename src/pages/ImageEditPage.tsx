@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { useNavigate, useParams, useLocation } from 'react-router-dom'
 import html2canvas from 'html2canvas'
 import AppBar from '../components/common/AppBar'
+import { updatePhotoImage } from '../api/photos'
 
 // ─── 타입 ─────────────────────────────────────────────────────
 interface TextLayer {
@@ -98,6 +99,7 @@ export default function ImageEditPage() {
   const [isSaving,       setIsSaving]       = useState(false)
   const [showUploadSheet, setShowUploadSheet] = useState(false)
   const [uploadDone,     setUploadDone]     = useState(false)
+  const [imgAspect,      setImgAspect]      = useState<string>('3 / 4')
 
   const cardRef  = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -208,10 +210,26 @@ export default function ImageEditPage() {
 
   // ── 캘린더에 업로드 ──
   const handleUpload = async () => {
+    if (!photoId) return
     setShowUploadSheet(false)
-    // TODO: canvas → Blob → FormData → POST /api/photos 업로드 API 연결
-    setUploadDone(true)
-    setTimeout(() => setUploadDone(false), 3000)
+    setIsSaving(true)
+    try {
+      const canvas = await captureCanvas()
+      if (!canvas) return
+      await new Promise<void>((resolve, reject) => {
+        canvas.toBlob(async (blob) => {
+          if (!blob) { reject(new Error('blob 생성 실패')); return }
+          await updatePhotoImage(photoId, blob)
+          resolve()
+        }, 'image/jpeg', 0.95)
+      })
+      setUploadDone(true)
+      setTimeout(() => navigate('/calendar'), 1500)
+    } catch {
+      // 실패 시 무시
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   const takenDate = photo?.takenAt
@@ -245,7 +263,7 @@ export default function ImageEditPage() {
           ref={cardRef}
           className="relative w-full overflow-hidden rounded-[20px] bg-[#e0c8a0] select-none"
           style={{
-            aspectRatio: '1 / 1',
+            aspectRatio: imgAspect,
             filter: FILTERS[selectedFilter],
           }}
           onPointerMove={onPointerMove}
@@ -257,6 +275,12 @@ export default function ImageEditPage() {
               alt="편집 사진"
               crossOrigin="anonymous"
               className="absolute inset-0 size-full object-cover"
+              onLoad={(e) => {
+                const { naturalWidth, naturalHeight } = e.currentTarget
+                if (naturalWidth && naturalHeight) {
+                  setImgAspect(`${naturalWidth} / ${naturalHeight}`)
+                }
+              }}
             />
           )}
 
