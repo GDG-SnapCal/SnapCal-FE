@@ -2,9 +2,11 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import AppBar from '../components/common/AppBar'
 import { useUploadStore } from '../stores/uploadStore'
+import { useToast } from '../components/Toast'
 
 export default function DuplicateSelectPage() {
   const navigate = useNavigate()
+  const showToast = useToast()
   const duplicateGroups = useUploadStore((s) => s.duplicateGroups)
   const submitDuplicates = useUploadStore((s) => s.submitDuplicates)
 
@@ -25,8 +27,12 @@ export default function DuplicateSelectPage() {
     const payload = Object.entries(selections)
       .filter(([, id]) => id !== null)
       .map(([groupId, selectedPhotoId]) => ({ groupId, selectedPhotoId: selectedPhotoId! }))
-    await submitDuplicates(payload)
-    navigate('/upload/classify')
+    try {
+      await submitDuplicates(payload)
+      navigate('/upload/classify')
+    } catch {
+      showToast('중복 사진 처리 중 오류가 발생했어요. 다시 시도해주세요.', 'error')
+    }
   }
 
   const formatDate = (takenAt: string) => takenAt.replace(/-/g, '.')
