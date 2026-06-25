@@ -3,15 +3,7 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { getDayPhotos, setRepresentativePhoto } from '../api/photos'
 import { useToast } from '../components/Toast'
 import type { PhotoCategory } from '../types'
-
-const CATEGORY_COLORS: Record<string, string> = {
-  음식: '#FAC775',
-  패션: '#F4C0D1',
-  운동: '#9FE1CB',
-  풍경: '#B5D4F4',
-  일상: '#D3D1C7',
-  미분류: '#E8E8E8',
-}
+import { CATEGORY_COLORS } from '../constants/categories'
 
 interface DayPhoto {
   photoId: string

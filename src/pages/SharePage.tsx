@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import AppBar from '../components/common/AppBar'
 import { getCalendar } from '../api/calendar'
 import type { CalendarDateEntry, PhotoCategory } from '../types'
+import { CATEGORY_GRADIENT } from '../constants/categories'
 
 type Ratio = '1:1' | '4:5' | '9:16'
 
@@ -16,15 +17,6 @@ const RATIO_BOX: Record<Ratio, { w: number; h: number }> = {
   '1:1':  { w: 30, h: 30 },
   '4:5':  { w: 24, h: 30 },
   '9:16': { w: 17, h: 30 },
-}
-
-const CATEGORY_GRADIENT: Record<string, string> = {
-  음식:   '#fae4d4',
-  패션:   '#f2d4db',
-  운동:   '#c8f0df',
-  풍경:   '#bfe3f5',
-  일상:   '#e8e1d2',
-  미분류: '#e8e8e8',
 }
 
 const DAY_LABELS = ['일', '월', '화', '수', '목', '금', '토']
@@ -121,7 +113,7 @@ async function drawCalendar(
     ctx.save()
     roundRect(ctx, x, y, w, h, radius)
     ctx.fillStyle = entry
-      ? (CATEGORY_GRADIENT[entry.representativePhoto.category] ?? '#e8e8e8')
+      ? ((CATEGORY_GRADIENT[entry.representativePhoto.category]?.[0] ?? '#e8e8e8'))
       : '#f0f8ff'
     ctx.fill()
 
@@ -156,7 +148,7 @@ async function drawCalendar(
       ctx.fillText(String(day), x + 6 * s, y + 18 * s)
       ctx.shadowBlur = 0
 
-      const dotColor = CATEGORY_GRADIENT[entry.representativePhoto.category] ?? '#e8e8e8'
+      const dotColor = (CATEGORY_GRADIENT[entry.representativePhoto.category]?.[0] ?? '#e8e8e8')
       ctx.beginPath()
       ctx.arc(x + w - 8 * s, y + h - 8 * s, 5 * s, 0, Math.PI * 2)
       ctx.fillStyle = dotColor

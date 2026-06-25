@@ -19,17 +19,9 @@ import { updatePhotoCategory, deletePhoto } from '../api/photos'
 import { getCategories } from '../api/categories'
 import { useToast } from '../components/Toast'
 import type { PhotoCategory, ClassifiedPhoto } from '../types'
+import { CATEGORY_COLORS } from '../constants/categories'
 
 const CATEGORY_ORDER: PhotoCategory[] = ['음식', '패션', '운동', '풍경', '일상', '미분류']
-
-const CATEGORY_COLORS: Record<PhotoCategory, string> = {
-  음식: '#FAC775',
-  패션: '#F4C0D1',
-  운동: '#9FE1CB',
-  풍경: '#B5D4F4',
-  일상: '#D3D1C7',
-  미분류: '#E8E8E8',
-}
 
 const titlePill = (
   <div className="flex items-center gap-1.5 rounded-[16px] bg-[#d8f0fa] px-3 py-1.5">

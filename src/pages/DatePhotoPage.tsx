@@ -3,24 +3,7 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { getDayPhotos, deletePhoto } from '../api/photos'
 import { useToast } from '../components/Toast'
 import type { PhotoCategory } from '../types'
-
-const CATEGORY_COLORS: Record<string, string> = {
-  음식: '#FAC775',
-  패션: '#F4C0D1',
-  운동: '#9FE1CB',
-  풍경: '#B5D4F4',
-  일상: '#D3D1C7',
-  미분류: '#E8E8E8',
-}
-
-const CATEGORY_EMOJI: Record<string, string> = {
-  음식: '🍽️',
-  패션: '👗',
-  운동: '🏃',
-  풍경: '🏔️',
-  일상: '☀️',
-  미분류: '📁',
-}
+import { CATEGORY_COLORS, CATEGORY_EMOJI } from '../constants/categories'
 
 const DAY_KO = ['일', '월', '화', '수', '목', '금', '토']
 

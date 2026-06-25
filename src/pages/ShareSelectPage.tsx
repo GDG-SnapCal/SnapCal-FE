@@ -4,15 +4,7 @@ import AppBar from '../components/common/AppBar'
 import { useCalendarStore } from '../stores/calendarStore'
 import { getCalendar } from '../api/calendar'
 import type { PhotoCategory } from '../types'
-
-const FILTERS: { label: string; value: PhotoCategory | 'all' }[] = [
-  { label: '전체', value: 'all' },
-  { label: '음식', value: '음식' },
-  { label: '패션', value: '패션' },
-  { label: '운동', value: '운동' },
-  { label: '풍경', value: '풍경' },
-  { label: '일상', value: '일상' },
-]
+import { CATEGORY_FILTERS } from '../constants/categories'
 
 export default function ShareSelectPage() {
   const navigate = useNavigate()
@@ -94,7 +86,7 @@ export default function ShareSelectPage() {
         {/* Category selector */}
         <p className="mb-3 mt-8 text-[14px] font-bold text-[#2c2c2c]">카테고리 선택</p>
         <div className="flex flex-wrap gap-2">
-          {FILTERS.map((f) => {
+          {CATEGORY_FILTERS.map((f) => {
             const active = category === f.value
             return (
               <button

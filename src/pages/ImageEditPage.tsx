@@ -3,6 +3,7 @@ import { useNavigate, useParams, useLocation } from 'react-router-dom'
 import html2canvas from 'html2canvas'
 import AppBar from '../components/common/AppBar'
 import { updatePhotoImage } from '../api/photos'
+import { CATEGORY_COLORS } from '../constants/categories'
 
 // ─── 타입 ─────────────────────────────────────────────────────
 interface TextLayer {
@@ -18,15 +19,6 @@ interface TextLayer {
 }
 
 type FilterKey = '원본' | '밝게' | '따뜻하게' | '흑백' | '빈티지'
-
-const CATEGORY_COLORS: Record<string, string> = {
-  음식: '#FAC775',
-  패션: '#F4C0D1',
-  운동: '#9FE1CB',
-  풍경: '#B5D4F4',
-  일상: '#D3D1C7',
-  미분류: '#E8E8E8',
-}
 
 interface PhotoState {
   originalUrl: string

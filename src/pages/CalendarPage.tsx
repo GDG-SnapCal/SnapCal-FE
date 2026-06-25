@@ -1,28 +1,10 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useCalendarStore } from '../stores/calendarStore'
-import type { PhotoCategory } from '../types'
 import { useAuthStore } from '../stores/authStore'
 import EmptyCategoryCard from '../components/EmptyCategoryCard'
 import logoImg from '../assets/logo.png'
-
-const CATEGORY_GRADIENT: Record<string, [string, string]> = {
-  음식: ['#fae4d4', '#b07f5e'],
-  패션: ['#f2d4db', '#a56b7c'],
-  운동: ['#c8f0df', '#3a8f6b'],
-  풍경: ['#bfe3f5', '#3f7da7'],
-  일상: ['#e8e1d2', '#86755a'],
-  미분류: ['#e8e8e8', '#9e9e9e'],
-}
-
-const FILTERS: { label: string; value: PhotoCategory | 'all' }[] = [
-  { label: '전체', value: 'all' },
-  { label: '음식', value: '음식' },
-  { label: '패션', value: '패션' },
-  { label: '운동', value: '운동' },
-  { label: '풍경', value: '풍경' },
-  { label: '일상', value: '일상' },
-]
+import { CATEGORY_GRADIENT, CATEGORY_FILTERS } from '../constants/categories'
 
 const DAY_LABELS = ['일', '월', '화', '수', '목', '금', '토']
 
@@ -122,7 +104,7 @@ export default function CalendarPage() {
 
       {/* Category filter chips */}
       <div className="mt-3 flex gap-2 overflow-x-auto pb-1 [&::-webkit-scrollbar]:hidden">
-        {FILTERS.map((f) => {
+        {CATEGORY_FILTERS.map((f) => {
           const active = selectedCategory === f.value
           return (
             <button
